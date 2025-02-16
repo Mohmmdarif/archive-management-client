@@ -1,35 +1,48 @@
-import { Layout, Menu } from "antd";
 import { Outlet } from "react-router";
+import { Layout } from "antd";
 
-const { Header, Footer, Sider, Content } = Layout;
+import Sidebar from "../ui/sidebar/Sidebar";
+import SidebarContent from "../ui/sidebar/SidebarContent";
+import useHeaderTitle from "../../hooks/useHeaderTitle";
+import LiveDateTime from "../ui/LiveDateTime";
+import { HiOutlineUser } from "react-icons/hi";
+
+const { Header, Footer, Content } = Layout;
 
 export default function MainLayout() {
+  const title = useHeaderTitle();
   return (
     <Layout className="h-screen">
-      <Sider
-        style={{ backgroundColor: "white", color: "black" }}
-        breakpoint="lg"
-        collapsedWidth="0"
-      >
-        <Menu
-          theme="light"
-          mode="inline"
-          items={[
-            {
-              key: "1",
-              label: "Menu 1",
-            },
-            {
-              key: "2",
-              label: "Menu 2",
-            },
-          ]}
-        />
-      </Sider>
+      {/* Sidebar */}
+      <Sidebar>
+        {/* Sidebar Content */}
+        <Layout style={{ backgroundColor: "white" }}>
+          <SidebarContent />
+        </Layout>
+      </Sidebar>
       <Layout>
-        <Header style={{ backgroundColor: "white", color: "black" }}>
-          Header
+        {/* Header */}
+        <Header
+          style={{ backgroundColor: "#F2F5FC", color: "black", height: 110 }}
+        >
+          <section className="flex justify-between items-center h-full pt-3">
+            <div className="flex flex-col space-y-2">
+              <span className="text-xl md:text-3xl font-bold">{title}</span>
+              <LiveDateTime />
+            </div>
+            <button className="flex items-center gap-2 cursor-pointer hover:bg-gray-200 p-2 rounded-lg">
+              <div className="bg-white p-3 rounded-lg shadow-md">
+                <HiOutlineUser size={30} color="#C1C7CD" />
+              </div>
+              <div className="flex flex-col text-left space-y-1">
+                <span className="text-base font-semibold">M Arif Fadhilah</span>
+                <span className="text-sm">Arsiparis</span>
+              </div>
+            </button>
+          </section>
         </Header>
+
+        {/* Content */}
         <Content
           style={{
             padding: "24px 16px 0",

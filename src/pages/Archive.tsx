@@ -1,7 +1,7 @@
-import React from "react";
+import ArchiveContainer from "../components/ui/containers/ArchiveContainer";
 
 const Archive = () => {
-  return <div>Archive</div>;
+  return <ArchiveContainer />;
 };
 
 export default Archive;

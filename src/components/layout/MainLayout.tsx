@@ -5,7 +5,7 @@ import Sidebar from "../ui/sidebar/Sidebar";
 import SidebarContent from "../ui/sidebar/SidebarContent";
 import useHeaderTitle from "../../hooks/useHeaderTitle";
 import LiveDateTime from "../ui/LiveDateTime";
-import { HiOutlineUser } from "react-icons/hi";
+import { BiUser } from "react-icons/bi";
 
 const { Header, Footer, Content } = Layout;
 
@@ -32,9 +32,9 @@ export default function MainLayout() {
             </div>
             <button className="flex items-center gap-2 cursor-pointer hover:bg-gray-200 p-2 rounded-lg">
               <div className="bg-white p-3 rounded-lg shadow-md">
-                <HiOutlineUser size={30} color="#C1C7CD" />
+                <BiUser size={30} color="#C1C7CD" />
               </div>
-              <div className="flex flex-col text-left space-y-1">
+              <div className="hidden md:flex flex-col text-left space-y-1">
                 <span className="text-base font-semibold">M Arif Fadhilah</span>
                 <span className="text-sm">Arsiparis</span>
               </div>

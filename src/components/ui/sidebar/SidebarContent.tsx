@@ -1,12 +1,19 @@
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { Menu } from "antd";
 
 import items from "../../../hooks/useMenuItems";
 import useCollapsible from "../../../store/useCollapsible";
+import { useEffect, useState } from "react";
 
 export default function SidebarContent() {
+  const location = useLocation();
   const navigate = useNavigate();
   const { collapsed } = useCollapsible();
+  const [selectedKey, setSelectedKey] = useState<string>(location.pathname);
+
+  useEffect(() => {
+    setSelectedKey(location.pathname);
+  }, [location.pathname]);
 
   return (
     <>
@@ -22,7 +29,7 @@ export default function SidebarContent() {
       <Menu
         theme="light"
         mode="inline"
-        defaultSelectedKeys={["/dashboard"]}
+        selectedKeys={[selectedKey]}
         onClick={(e) => navigate(e.key)}
         items={items}
         style={{ fontSize: 16, marginTop: 5 }}

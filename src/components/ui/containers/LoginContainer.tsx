@@ -1,7 +1,7 @@
 import { Layout } from "antd";
 
-import LoginForm from "../form/LoginForm";
-import LoginFormHeader from "../LoginFormHeader";
+import LoginForm from "../forms/LoginForm";
+import LoginFormHeader from "../headers/LoginFormHeader";
 
 export default function LoginContainer() {
   return (

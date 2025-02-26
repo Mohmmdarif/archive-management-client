@@ -1,5 +1,5 @@
 import { Layout } from "antd";
-import CollapsibleButton from "../CollapsibleButton";
+import CollapsibleButton from "../buttons/CollapsibleButton";
 import useCollapsible from "../../../store/useCollapsible";
 
 const { Sider } = Layout;

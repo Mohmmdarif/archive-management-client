@@ -8,6 +8,10 @@ import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
 import "./app.css";
+import Category from "./pages/master-data/Category";
+import Type from "./pages/master-data/Type";
+import Criteria from "./pages/master-data/Criteria";
+import UserManagement from "./pages/UserManagement";
 
 const router = createBrowserRouter([
   {
@@ -25,6 +29,22 @@ const router = createBrowserRouter([
       {
         path: "/arsip",
         element: <Archive />,
+      },
+      {
+        path: "/manajemen-user",
+        element: <UserManagement />,
+      },
+      {
+        path: "/kategori-surat",
+        element: <Category />,
+      },
+      {
+        path: "/jenis-surat",
+        element: <Type />,
+      },
+      {
+        path: "/kriteria-surat",
+        element: <Criteria />,
       },
     ],
   },

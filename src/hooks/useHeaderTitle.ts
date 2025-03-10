@@ -11,11 +11,11 @@ const useHeaderTitle = () => {
     case "/manajemen-user":
       return "Manajemen User";
     case "/kategori-surat":
-      return "Kategori Surat";
+      return "Master Data";
     case "/jenis-surat":
-      return "Jenis Surat";
+      return "Master Data";
     case "/kriteria-surat":
-      return "Kriteria Surat";
+      return "Master Data";
     default:
       return "Not Found";
   }

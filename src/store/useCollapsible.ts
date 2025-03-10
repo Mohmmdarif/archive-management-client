@@ -1,9 +1,9 @@
 import { create } from "zustand";
 
-type CollapsibleState = {
+interface CollapsibleState {
   collapsed: boolean;
   setCollapsed: (collapsed: boolean) => void;
-};
+}
 
 const useCollapsible = create<CollapsibleState>((set) => ({
   collapsed: false,

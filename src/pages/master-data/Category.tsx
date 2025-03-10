@@ -1,7 +1,7 @@
-import React from "react";
+import CategoryContainer from "../../components/ui/containers/CategoryContainer";
 
 const Category = () => {
-  return <div>Category</div>;
+  return <CategoryContainer />;
 };
 
 export default Category;

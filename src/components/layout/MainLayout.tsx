@@ -52,7 +52,11 @@ export default function MainLayout() {
         >
           <Outlet />
         </Content>
-        <Footer>Footer</Footer>
+        <Footer>
+          <div className="text-center text-gray-500">
+            &copy; 2021. All Right Reserved. Fakultas Ilmu Komputer
+          </div>
+        </Footer>
       </Layout>
     </Layout>
   );

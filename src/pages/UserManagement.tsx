@@ -1,7 +1,7 @@
-import React from "react";
+import UserManagementContainer from "../components/ui/containers/UserManagementContainer";
 
 const UserManagement = () => {
-  return <div>UserManagement</div>;
+  return <UserManagementContainer />;
 };
 
 export default UserManagement;

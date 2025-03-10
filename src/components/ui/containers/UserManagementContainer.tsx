@@ -93,6 +93,6 @@ const columns: ColumnsType<SuratData> = [
   },
 ];
 
-export default function ArchiveContainer() {
+export default function UserManagementContainer() {
   return <TableData dataSource={dataSource} columns={columns} />;
 }

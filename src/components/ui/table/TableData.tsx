@@ -19,6 +19,11 @@ export default function TableData<T extends object>({
         dataSource={dataSource}
         columns={columns}
         scroll={{ x: "max-content" }}
+        pagination={
+          dataSource.length > 10
+            ? { pageSize: 10, position: ["bottomCenter"] }
+            : false
+        }
         onRow={(record) => {
           return {
             onClick: () => {

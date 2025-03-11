@@ -8,7 +8,6 @@ import { ColumnsType } from "antd/lib/table";
 import useSearch from "../../../store/useSearch";
 import useNotify from "../../../hooks/useNotify";
 import useModalStore from "../../../store/useModal";
-import useCategoryStore from "../../../store/api/useCategoryStore";
 import { transformData } from "../../../libs/utils/transformData";
 import { filterData } from "../../../libs/utils/filterData";
 
@@ -23,29 +22,30 @@ import DefaultModal from "../modals/DefaultModal";
 // Icons
 import { BiEdit, BiPlus } from "react-icons/bi";
 import { TbTrash } from "react-icons/tb";
+import useTypeStore from "../../../store/api/useTypeStore";
 
-interface CategoryData {
+interface TypeData {
   key: React.Key;
   id: number;
-  nama_kategori: string;
+  nama_jenis: string;
   keterangan: string;
 }
 
-export default function CategoryContainer() {
+export default function TypeContainer() {
   const [form] = useForm();
   const { notify, contextHolder } = useNotify();
   const { searchQuery } = useSearch();
-  const { categoryData, fetchCategoryData, addData, updateData, deleteData } = useCategoryStore();
+  const { typeData, addData, updateData, deleteData, fetchTypeData } = useTypeStore();
   const { isModalOpen, closeModal, openModal } = useModalStore();
-  const [editingData, setEditingData] = useState<CategoryData | null>(null);
+  const [editingData, setEditingData] = useState<TypeData | null>(null);
 
   useEffect(() => {
-    fetchCategoryData();
-  }, [fetchCategoryData]);
+    fetchTypeData();
+  }, [fetchTypeData]);
 
-  const category = transformData(categoryData);
+  const type = transformData(typeData);
 
-  const filteredData = filterData(category, searchQuery, ["nama_kategori"]);
+  const filteredData = filterData(type, searchQuery, ["nama_jenis"]);
 
   const handleOk = () => form.submit();
 
@@ -55,13 +55,13 @@ export default function CategoryContainer() {
     openModal();
   };
 
-  const handleEdit = (record: CategoryData) => {
+  const handleEdit = (record: TypeData) => {
     setEditingData(record);
     form.setFieldsValue(record);
     openModal();
   };
 
-  const handleSubmit = async (values: Omit<CategoryData, "id">) => {
+  const handleSubmit = async (values: Omit<TypeData, "id">) => {
     if (editingData) {
       await updateData(editingData.id, values);
 
@@ -72,7 +72,7 @@ export default function CategoryContainer() {
       });
     } else {
       await addData(values);
-      await fetchCategoryData();
+      await fetchTypeData();
 
       notify({
         type: "success",
@@ -87,14 +87,14 @@ export default function CategoryContainer() {
 
   const handleDelete = (id: number) => {
     Modal.confirm({
-      title: "Hapus Kategori Surat",
-      content: "Apakah anda yakin ingin menghapus kategori surat ini?",
+      title: "Hapus Jenis Surat",
+      content: "Apakah anda yakin ingin menghapus jenis surat ini?",
       okText: "Hapus",
       cancelText: "Batal",
       onOk: async () => {
         try {
           await deleteData(id);
-          await fetchCategoryData();
+          await fetchTypeData();
 
           // Show notification
           notify({
@@ -113,7 +113,7 @@ export default function CategoryContainer() {
     });
   };
 
-  const columns: ColumnsType<CategoryData> = [
+  const columns: ColumnsType<TypeData> = [
     {
       title: "No",
       dataIndex: "no",
@@ -121,9 +121,9 @@ export default function CategoryContainer() {
       align: "center",
     },
     {
-      title: "Nama Kategori",
-      dataIndex: "nama_kategori",
-      key: "nama_kategori",
+      title: "Nama Jenis",
+      dataIndex: "nama_jenis",
+      key: "nama_jenis",
       sortDirections: ["ascend"],
     },
     {
@@ -163,7 +163,7 @@ export default function CategoryContainer() {
       {contextHolder}
 
       {/* Sub Header */}
-      <SubHeader subHeaderTitle="Kategori Surat" />
+      <SubHeader subHeaderTitle="Jenis Surat" />
 
       {/* Search and Button Add */}
       <Flex
@@ -187,14 +187,14 @@ export default function CategoryContainer() {
 
       {/* Table Data */}
       <TableData
-        key={categoryData.length}
-        dataSource={(filteredData as CategoryData[]) || []}
+        key={typeData.length}
+        dataSource={(filteredData as TypeData[]) || []}
         columns={columns}
       />
 
       {/* Modal Form */}
       <DefaultModal
-        modalTitle={editingData ? "Edit Kategori Surat" : "Tambah Kategori Surat"}
+        modalTitle={editingData ? "Edit Jenis Surat" : "Tambah Jenis Surat"}
         isOpen={isModalOpen}
         handleOk={handleOk}
         handleCancel={() => {
@@ -204,12 +204,12 @@ export default function CategoryContainer() {
       >
         <MasterDataForm
           key={editingData ? editingData.id : "add"}
-          nameFieldLabel="Nama Kategori"
-          nameFieldName="nama_kategori"
+          nameFieldLabel="Nama Jenis"
+          nameFieldName="nama_jenis"
           descriptionFieldLabel="Keterangan"
           descriptionFieldName="keterangan"
-          namePlaceholder="Akademik, ..."
-          descriptionPlaceholder="Kategori surat yang diperuntukkan untuk ..."
+          namePlaceholder="Biasa, ..."
+          descriptionPlaceholder="Jenis surat yang diperuntukkan untuk ..."
           onSubmit={handleSubmit}
           form={form}
         />

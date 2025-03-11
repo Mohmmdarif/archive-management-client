@@ -1,7 +1,7 @@
-import React from "react";
+import TypeContainer from "../../components/ui/containers/TypeContainer";
 
 const Type = () => {
-  return <div>Type</div>;
+  return <TypeContainer />;
 };
 
 export default Type;

@@ -1,7 +1,7 @@
-import React from "react";
+import CriteriaContainer from "../../components/ui/containers/CriteriaContainer";
 
 const Criteria = () => {
-  return <div>Criteria</div>;
+  return <CriteriaContainer />;
 };
 
 export default Criteria;

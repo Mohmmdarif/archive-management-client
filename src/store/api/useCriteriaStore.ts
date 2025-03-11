@@ -2,41 +2,41 @@ import { create } from "zustand";
 import { axiosInstance } from "../../libs/axios";
 import { getErrorMessage } from "../../libs/utils/errorHandler";
 
-interface CategoryData {
+interface CriteriaData {
   id?: number;
-  nama_kategori: string;
+  nama_kriteria: string;
   keterangan: string;
 }
 
-interface CategoryStore {
-  categoryData: CategoryData[];
+interface CriteriaStore {
+  criteriaData: CriteriaData[];
   isLoading: boolean;
   error: string | null;
-  fetchCategoryData: () => Promise<void>;
-  addData: (newData: Omit<CategoryData, "id">) => Promise<void>;
+  fetchCriteriaData: () => Promise<void>;
+  addData: (newData: Omit<CriteriaData, "id">) => Promise<void>;
   updateData: (
     id: number,
-    updatedData: Omit<CategoryData, "id">
+    updatedData: Omit<CriteriaData, "id">
   ) => Promise<void>;
   deleteData: (id: number) => Promise<void>;
 }
 
-const useCategoryStore = create<CategoryStore>((set) => ({
-  categoryData: [],
+const useCriteriaStore = create<CriteriaStore>((set) => ({
+  criteriaData: [],
   isLoading: false,
   error: null,
 
   // Fetch data
-  fetchCategoryData: async () => {
+  fetchCriteriaData: async () => {
     set({
       isLoading: true,
       error: null,
     });
 
     try {
-      const response = await axiosInstance.get("/categories");
+      const response = await axiosInstance.get("/criterias");
       set({
-        categoryData: response.data.data || [],
+        criteriaData: response.data.data || [],
         isLoading: false,
       });
     } catch (error) {
@@ -48,9 +48,9 @@ const useCategoryStore = create<CategoryStore>((set) => ({
   addData: async (newData) => {
     set({ isLoading: true, error: null });
     try {
-      await axiosInstance.post("/categories/create", newData);
+      await axiosInstance.post("/criterias/create", newData);
       set((state) => ({
-        categoryData: [...state.categoryData, newData],
+        criteriaData: [...state.criteriaData, newData],
         isLoading: false,
       }));
     } catch (error) {
@@ -62,9 +62,9 @@ const useCategoryStore = create<CategoryStore>((set) => ({
   updateData: async (id, updatedData) => {
     set({ isLoading: true, error: null });
     try {
-      await axiosInstance.put(`/categories/${id}`, updatedData);
+      await axiosInstance.put(`/criterias/${id}`, updatedData);
       set((state) => ({
-        categoryData: state.categoryData.map((data) =>
+        criteriaData: state.criteriaData.map((data) =>
           data.id === id ? { ...data, ...updatedData } : data
         ),
         isLoading: false,
@@ -78,9 +78,9 @@ const useCategoryStore = create<CategoryStore>((set) => ({
   deleteData: async (id) => {
     set({ isLoading: true, error: null });
     try {
-      await axiosInstance.delete(`/categories/${id}`);
+      await axiosInstance.delete(`/types/${id}`);
       set((state) => ({
-        categoryData: state.categoryData.filter((data) => data.id !== id),
+        criteriaData: state.criteriaData.filter((data) => data.id !== id),
         isLoading: false,
       }));
     } catch (error) {
@@ -89,4 +89,4 @@ const useCategoryStore = create<CategoryStore>((set) => ({
   },
 }));
 
-export default useCategoryStore;
+export default useCriteriaStore;

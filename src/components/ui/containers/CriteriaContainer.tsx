@@ -8,7 +8,7 @@ import { ColumnsType } from "antd/lib/table";
 import useSearch from "../../../store/useSearch";
 import useNotify from "../../../hooks/useNotify";
 import useModalStore from "../../../store/useModal";
-import useCategoryStore from "../../../store/api/useCategoryStore";
+import useCriteriaStore from "../../../store/api/useCriteriaStore";
 import { transformData } from "../../../libs/utils/transformData";
 import { filterData } from "../../../libs/utils/filterData";
 
@@ -24,28 +24,28 @@ import DefaultModal from "../modals/DefaultModal";
 import { BiEdit, BiPlus } from "react-icons/bi";
 import { TbTrash } from "react-icons/tb";
 
-interface CategoryData {
+interface CriteriaData {
   key: React.Key;
   id: number;
-  nama_kategori: string;
+  nama_kriteria: string;
   keterangan: string;
 }
 
-export default function CategoryContainer() {
+export default function CriteriaContainer() {
   const [form] = useForm();
   const { notify, contextHolder } = useNotify();
   const { searchQuery } = useSearch();
-  const { categoryData, fetchCategoryData, addData, updateData, deleteData } = useCategoryStore();
+  const { criteriaData, fetchCriteriaData, addData, updateData, deleteData } = useCriteriaStore();
   const { isModalOpen, closeModal, openModal } = useModalStore();
-  const [editingData, setEditingData] = useState<CategoryData | null>(null);
+  const [editingData, setEditingData] = useState<CriteriaData | null>(null);
 
   useEffect(() => {
-    fetchCategoryData();
-  }, [fetchCategoryData]);
+    fetchCriteriaData();
+  }, [fetchCriteriaData]);
 
-  const category = transformData(categoryData);
+  const criteria = transformData(criteriaData);
 
-  const filteredData = filterData(category, searchQuery, ["nama_kategori"]);
+  const filteredData = filterData(criteria, searchQuery, ["nama_kriteria"]);
 
   const handleOk = () => form.submit();
 
@@ -55,13 +55,13 @@ export default function CategoryContainer() {
     openModal();
   };
 
-  const handleEdit = (record: CategoryData) => {
+  const handleEdit = (record: CriteriaData) => {
     setEditingData(record);
     form.setFieldsValue(record);
     openModal();
   };
 
-  const handleSubmit = async (values: Omit<CategoryData, "id">) => {
+  const handleSubmit = async (values: Omit<CriteriaData, "id">) => {
     if (editingData) {
       await updateData(editingData.id, values);
 
@@ -72,7 +72,7 @@ export default function CategoryContainer() {
       });
     } else {
       await addData(values);
-      await fetchCategoryData();
+      await fetchCriteriaData();
 
       notify({
         type: "success",
@@ -87,14 +87,14 @@ export default function CategoryContainer() {
 
   const handleDelete = (id: number) => {
     Modal.confirm({
-      title: "Hapus Kategori Surat",
-      content: "Apakah anda yakin ingin menghapus kategori surat ini?",
+      title: "Hapus Kriteria Surat",
+      content: "Apakah anda yakin ingin menghapus kriteria surat ini?",
       okText: "Hapus",
       cancelText: "Batal",
       onOk: async () => {
         try {
           await deleteData(id);
-          await fetchCategoryData();
+          await fetchCriteriaData();
 
           // Show notification
           notify({
@@ -113,7 +113,7 @@ export default function CategoryContainer() {
     });
   };
 
-  const columns: ColumnsType<CategoryData> = [
+  const columns: ColumnsType<CriteriaData> = [
     {
       title: "No",
       dataIndex: "no",
@@ -121,9 +121,9 @@ export default function CategoryContainer() {
       align: "center",
     },
     {
-      title: "Nama Kategori",
-      dataIndex: "nama_kategori",
-      key: "nama_kategori",
+      title: "Nama Kriteria",
+      dataIndex: "nama_kriteria",
+      key: "nama_kriteria",
       sortDirections: ["ascend"],
     },
     {
@@ -163,7 +163,7 @@ export default function CategoryContainer() {
       {contextHolder}
 
       {/* Sub Header */}
-      <SubHeader subHeaderTitle="Kategori Surat" />
+      <SubHeader subHeaderTitle="Kriteria Surat" />
 
       {/* Search and Button Add */}
       <Flex
@@ -187,14 +187,14 @@ export default function CategoryContainer() {
 
       {/* Table Data */}
       <TableData
-        key={categoryData.length}
-        dataSource={(filteredData as CategoryData[]) || []}
+        key={criteriaData.length}
+        dataSource={(filteredData as CriteriaData[]) || []}
         columns={columns}
       />
 
       {/* Modal Form */}
       <DefaultModal
-        modalTitle={editingData ? "Edit Kategori Surat" : "Tambah Kategori Surat"}
+        modalTitle={editingData ? "Edit Kriteria Surat" : "Tambah Kriteria Surat"}
         isOpen={isModalOpen}
         handleOk={handleOk}
         handleCancel={() => {
@@ -204,8 +204,8 @@ export default function CategoryContainer() {
       >
         <MasterDataForm
           key={editingData ? editingData.id : "add"}
-          nameFieldLabel="Nama Kategori"
-          nameFieldName="nama_kategori"
+          nameFieldLabel="Nama Kriteria"
+          nameFieldName="nama_kriteria"
           descriptionFieldLabel="Keterangan"
           descriptionFieldName="keterangan"
           namePlaceholder="Akademik, ..."

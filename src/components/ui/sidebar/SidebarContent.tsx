@@ -24,7 +24,7 @@ export default function SidebarContent() {
           className="w-full"
         />
       </div>
-      {!collapsed && <p className="text-sm ml-2">Menu Utama</p>}
+      {!collapsed && <p className="text-sm font-medium ml-5">Menu Utama</p>}
 
       <Menu
         theme="light"
@@ -32,7 +32,7 @@ export default function SidebarContent() {
         selectedKeys={[selectedKey]}
         onClick={(e) => navigate(e.key)}
         items={items}
-        style={{ fontSize: 16, marginTop: 5 }}
+        style={{ fontSize: 16, marginTop: 3 }}
       />
     </>
   );

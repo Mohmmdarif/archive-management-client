@@ -27,7 +27,7 @@ const items: MenuItemType[] = [
   getListItems("Masterdata", "masterdata", <MdOutlineSettings size={15} />, [
     getListItems("Kategori Surat", "/kategori-surat"),
     getListItems("Jenis Surat", "/jenis-surat"),
-    getListItems("Kriteria", "/kriteria-surat"),
+    getListItems("Kriteria Surat", "/kriteria-surat"),
   ]),
 ];
 

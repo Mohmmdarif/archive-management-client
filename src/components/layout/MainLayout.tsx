@@ -12,7 +12,7 @@ const { Header, Footer, Content } = Layout;
 export default function MainLayout() {
   const title = useHeaderTitle();
   return (
-    <Layout className="h-screen">
+    <Layout className="h-screen overflow-hidden">
       {/* Sidebar */}
       <Sidebar>
         {/* Sidebar Content */}

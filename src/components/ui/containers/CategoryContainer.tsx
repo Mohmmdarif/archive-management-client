@@ -5,10 +5,10 @@ import { useForm } from "antd/es/form/Form";
 import { ColumnsType } from "antd/lib/table";
 
 // Hooks and Store
-import useSearch from "../../../store/useSearch";
-import useNotify from "../../../hooks/useNotify";
+import useSearchStore from "../../../store/useSearch";
 import useModalStore from "../../../store/useModal";
 import useCategoryStore from "../../../store/api/useCategoryStore";
+import useNotify from "../../../hooks/useNotify";
 import { transformData } from "../../../libs/utils/transformData";
 import { filterData } from "../../../libs/utils/filterData";
 
@@ -34,8 +34,9 @@ interface CategoryData {
 export default function CategoryContainer() {
   const [form] = useForm();
   const { notify, contextHolder } = useNotify();
-  const { searchQuery } = useSearch();
-  const { categoryData, fetchCategoryData, addData, updateData, deleteData } = useCategoryStore();
+  const { searchQuery } = useSearchStore();
+  const { categoryData, fetchCategoryData, addData, updateData, deleteData } =
+    useCategoryStore();
   const { isModalOpen, closeModal, openModal } = useModalStore();
   const [editingData, setEditingData] = useState<CategoryData | null>(null);
 
@@ -194,7 +195,9 @@ export default function CategoryContainer() {
 
       {/* Modal Form */}
       <DefaultModal
-        modalTitle={editingData ? "Edit Kategori Surat" : "Tambah Kategori Surat"}
+        modalTitle={
+          editingData ? "Edit Kategori Surat" : "Tambah Kategori Surat"
+        }
         isOpen={isModalOpen}
         handleOk={handleOk}
         handleCancel={() => {

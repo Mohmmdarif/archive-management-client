@@ -12,11 +12,18 @@ import Category from "./pages/master-data/Category";
 import Type from "./pages/master-data/Type";
 import Criteria from "./pages/master-data/Criteria";
 import UserManagement from "./pages/UserManagement";
+import ProtectedRoute from "./components/ProtectedRoute";
+import TokenChecker from "./libs/utils/TokenChecker";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <MainLayout />,
+    element: (
+      <>
+        <TokenChecker />
+        <MainLayout />
+      </>
+    ),
     children: [
       {
         index: true,
@@ -50,7 +57,13 @@ const router = createBrowserRouter([
   },
   {
     path: "/login",
-    element: <Login />,
+    element: <ProtectedRoute />,
+    children: [
+      {
+        index: true,
+        element: <Login />,
+      },
+    ],
   },
   {
     path: "*",

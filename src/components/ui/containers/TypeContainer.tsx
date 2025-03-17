@@ -5,9 +5,10 @@ import { useForm } from "antd/es/form/Form";
 import { ColumnsType } from "antd/lib/table";
 
 // Hooks and Store
-import useSearch from "../../../store/useSearch";
-import useNotify from "../../../hooks/useNotify";
+import useSearchStore from "../../../store/useSearch";
 import useModalStore from "../../../store/useModal";
+import useTypeStore from "../../../store/api/useTypeStore";
+import useNotify from "../../../hooks/useNotify";
 import { transformData } from "../../../libs/utils/transformData";
 import { filterData } from "../../../libs/utils/filterData";
 
@@ -22,7 +23,6 @@ import DefaultModal from "../modals/DefaultModal";
 // Icons
 import { BiEdit, BiPlus } from "react-icons/bi";
 import { TbTrash } from "react-icons/tb";
-import useTypeStore from "../../../store/api/useTypeStore";
 
 interface TypeData {
   key: React.Key;
@@ -34,8 +34,9 @@ interface TypeData {
 export default function TypeContainer() {
   const [form] = useForm();
   const { notify, contextHolder } = useNotify();
-  const { searchQuery } = useSearch();
-  const { typeData, addData, updateData, deleteData, fetchTypeData } = useTypeStore();
+  const { searchQuery } = useSearchStore();
+  const { typeData, addData, updateData, deleteData, fetchTypeData } =
+    useTypeStore();
   const { isModalOpen, closeModal, openModal } = useModalStore();
   const [editingData, setEditingData] = useState<TypeData | null>(null);
 

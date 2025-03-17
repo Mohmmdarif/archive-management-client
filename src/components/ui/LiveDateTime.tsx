@@ -5,15 +5,15 @@ export default function LiveDateTime() {
     getFormattedDateTime()
   );
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentDateTime(getFormattedDateTime()); // Update setiap detik
-    }, 1000);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setCurrentDateTime(getFormattedDateTime()); // Update setiap detik
+  //   }, 1000);
 
-    return () => clearInterval(interval); // Hapus interval saat komponen unmount
-  }, []);
+  //   return () => clearInterval(interval); // Hapus interval saat komponen unmount
+  // }, []);
 
-  return <span className="text-sm md:text-base">{currentDateTime} WIB</span>;
+  return <span className="text-sm md:text-base">{currentDateTime}</span>;
 }
 
 // Fungsi untuk mendapatkan format Tanggal + Jam
@@ -27,11 +27,11 @@ function getFormattedDateTime() {
     year: "numeric",
   }).format(now);
 
-  const formattedTime = now.toLocaleTimeString("id-ID", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
+  // const formattedTime = now.toLocaleTimeString("id-ID", {
+  //   hour: "2-digit",
+  //   minute: "2-digit",
+  //   second: "2-digit",
+  // });
 
-  return `${formattedDate} | ${formattedTime}`;
+  return `${formattedDate}`;
 }

@@ -5,10 +5,10 @@ import { useForm } from "antd/es/form/Form";
 import { ColumnsType } from "antd/lib/table";
 
 // Hooks and Store
-import useSearch from "../../../store/useSearch";
-import useNotify from "../../../hooks/useNotify";
+import useSearchStore from "../../../store/useSearch";
 import useModalStore from "../../../store/useModal";
 import useCriteriaStore from "../../../store/api/useCriteriaStore";
+import useNotify from "../../../hooks/useNotify";
 import { transformData } from "../../../libs/utils/transformData";
 import { filterData } from "../../../libs/utils/filterData";
 
@@ -34,8 +34,9 @@ interface CriteriaData {
 export default function CriteriaContainer() {
   const [form] = useForm();
   const { notify, contextHolder } = useNotify();
-  const { searchQuery } = useSearch();
-  const { criteriaData, fetchCriteriaData, addData, updateData, deleteData } = useCriteriaStore();
+  const { searchQuery } = useSearchStore();
+  const { criteriaData, fetchCriteriaData, addData, updateData, deleteData } =
+    useCriteriaStore();
   const { isModalOpen, closeModal, openModal } = useModalStore();
   const [editingData, setEditingData] = useState<CriteriaData | null>(null);
 
@@ -194,7 +195,9 @@ export default function CriteriaContainer() {
 
       {/* Modal Form */}
       <DefaultModal
-        modalTitle={editingData ? "Edit Kriteria Surat" : "Tambah Kriteria Surat"}
+        modalTitle={
+          editingData ? "Edit Kriteria Surat" : "Tambah Kriteria Surat"
+        }
         isOpen={isModalOpen}
         handleOk={handleOk}
         handleCancel={() => {

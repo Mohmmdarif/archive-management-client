@@ -7,7 +7,7 @@ type ButtonIconProps = {
   shape?: "default" | "circle" | "round";
   tooltipTitle?: "Edit" | "Delete" | "Ajukan";
   children?: React.ReactNode;
-  onClick: () => void;
+  onClick: (() => void) | ((e: React.MouseEvent<HTMLElement>) => void);
 };
 
 export default function ButtonIcon(props: ButtonIconProps) {

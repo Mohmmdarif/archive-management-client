@@ -1,4 +1,9 @@
 import { Button, Form, FormProps, Input } from "antd";
+import useAuthStore from "../../../store/api/useAuthStore";
+import useNotify from "../../../hooks/useNotify";
+import { useEffect } from "react";
+import { getErrorMessage } from "../../../libs/utils/errorHandler";
+import { useNavigate } from "react-router";
 
 type LoginFormType = {
   email: string;
@@ -6,33 +11,88 @@ type LoginFormType = {
 };
 
 export default function LoginForm() {
-  const onFinish: FormProps<LoginFormType>["onFinish"] = (values) => {
-    console.log(values);
+  const [form] = Form.useForm<LoginFormType>();
+  const navigate = useNavigate();
+  const { notify, contextHolder } = useNotify();
+  const { login, isLoading, error } = useAuthStore();
+
+  useEffect(() => {
+    if (error) {
+      console.error("Error:", error);
+    }
+  }, [error, notify]);
+
+  const onFinish: FormProps<LoginFormType>["onFinish"] = async (values) => {
+    try {
+      await login(values);
+
+      notify({
+        type: "success",
+        notifyTitle: "Login success",
+        notifyContent: "You have successfully logged in.",
+      });
+
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1000);
+    } catch (error) {
+      notify({
+        type: "error",
+        notifyTitle: "Error!",
+        notifyContent: getErrorMessage(error),
+      });
+    }
   };
 
   return (
-    <Form
-      name="loginForm"
-      layout="vertical"
-      requiredMark={false}
-      onFinish={onFinish}
-    >
-      <Form.Item<LoginFormType> label="Email" name="email" required>
-        <Input placeholder="Email" style={{ height: "40px" }} />
-      </Form.Item>
-      <Form.Item<LoginFormType> label="Password" name="password" required>
-        <Input.Password placeholder="Password" style={{ height: "40px" }} />
-      </Form.Item>
-      <Form.Item>
-        <Button
-          type="primary"
-          htmlType="submit"
-          className="w-full"
-          style={{ height: "40px" }}
+    <>
+      {contextHolder}
+      <Form
+        form={form}
+        name="loginForm"
+        layout="vertical"
+        requiredMark={false}
+        onFinish={onFinish}
+      >
+        <Form.Item<LoginFormType>
+          label="Email"
+          name="email"
+          rules={[
+            {
+              required: true,
+              message: "Email wajib diisi!",
+            },
+            {
+              type: "email",
+              message: "Email tidak valid!",
+            },
+          ]}
         >
-          Login
-        </Button>
-      </Form.Item>
-    </Form>
+          <Input placeholder="Email" style={{ height: "40px" }} />
+        </Form.Item>
+        <Form.Item<LoginFormType>
+          label="Password"
+          name="password"
+          rules={[
+            { required: true, message: "Password wajib diisi!" },
+            { min: 8, message: "Password minimal 8 karakter!" },
+          ]}
+        >
+          <Input.Password placeholder="Password" style={{ height: "40px" }} />
+        </Form.Item>
+        <Form.Item>
+          <Button
+            type="primary"
+            htmlType="submit"
+            className="w-full"
+            style={{ height: "40px", marginTop: "25px" }}
+            loading={isLoading}
+            disabled={isLoading}
+          >
+            Login
+          </Button>
+        </Form.Item>
+      </Form>
+    </>
   );
 }

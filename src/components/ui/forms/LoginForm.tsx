@@ -14,7 +14,8 @@ export default function LoginForm() {
   const [form] = Form.useForm<LoginFormType>();
   const navigate = useNavigate();
   const { notify, contextHolder } = useNotify();
-  const { login, isLoading, error } = useAuthStore();
+  const { login, isLoading, error, token } = useAuthStore();
+  // const token = useAuthStore((state) => state.token);
 
   useEffect(() => {
     if (error) {
@@ -26,15 +27,15 @@ export default function LoginForm() {
     try {
       await login(values);
 
-      notify({
-        type: "success",
-        notifyTitle: "Login success",
-        notifyContent: "You have successfully logged in.",
-      });
+      // notify({
+      //   type: "success",
+      //   notifyTitle: "Login success",
+      //   notifyContent: "You have successfully logged in.",
+      // });
 
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 1000);
+      // setTimeout(() => {
+      //   navigate("/dashboard");
+      // }, 1000);
     } catch (error) {
       notify({
         type: "error",

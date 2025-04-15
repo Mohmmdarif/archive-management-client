@@ -7,6 +7,7 @@ interface FormInputConfig {
   placeholder: string;
   options?: { label: string; value: string | number }[];
   rules?: any[];
+  disable?: boolean;
 }
 
 interface UserManagementProps<T> {
@@ -85,6 +86,7 @@ export default function UserManagementForm<T>({
                 <Input
                   placeholder={input.placeholder}
                   style={{ height: "40px" }}
+                  disabled={input.disable && initialValues !== null}
                 />
               </Form.Item>
             );

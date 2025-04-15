@@ -23,10 +23,11 @@ interface UserManagementData {
 
 interface UserManagementStore {
   userManagementData: UserManagementData[];
+  userMe: UserManagementData;
   isLoading: boolean;
   error: string | null;
   fetchUserManagementData: () => Promise<void>;
-  fetchUserManagementDataById: (id: string) => Promise<UserManagementData>;
+  fetchUserManagementDataById: () => Promise<void>;
   addData: (newData: Omit<UserManagementData, "id">) => Promise<void>;
   updateData: (
     id: string,
@@ -36,14 +37,15 @@ interface UserManagementStore {
   clearError: () => void;
 }
 
-const { token } = useAuthStore.getState();
+const getToken = () => useAuthStore.getState().token;
 
 const useUserManagementStore = create<UserManagementStore>((set) => ({
   userManagementData: [],
+  userMe: {} as UserManagementData,
   isLoading: false,
   error: null,
-  errorDetails: null,
 
+  // Fetch data user
   fetchUserManagementData: async () => {
     set({
       isLoading: true,
@@ -60,21 +62,21 @@ const useUserManagementStore = create<UserManagementStore>((set) => ({
       set({ error: getErrorMessage(error), isLoading: false });
     }
   },
-  fetchUserManagementDataById: async (
-    id: string
-  ): Promise<UserManagementData> => {
+
+  // Fetch data user by ID
+  fetchUserManagementDataById: async () => {
     set({ isLoading: true, error: null });
 
     try {
-      const response = await axiosInstance.get(`/users/${id}`);
-      const userData = response.data.data;
-      set((state) => ({
-        userManagementData: state.userManagementData.map((user) =>
-          user.id === id ? userData : user
-        ),
+      const response = await axiosInstance.get("/users/me", {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
+      set({
+        userMe: response.data.data || {},
         isLoading: false,
-      }));
-      return userData;
+      });
     } catch (error) {
       set({
         error: getErrorMessage(error),
@@ -91,7 +93,7 @@ const useUserManagementStore = create<UserManagementStore>((set) => ({
       const response = await axiosInstance.post("/auth/register", newData, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${getToken()}`,
         },
       });
       set((state) => ({
@@ -106,12 +108,27 @@ const useUserManagementStore = create<UserManagementStore>((set) => ({
       throw error; // Lempar error untuk ditangkap di komponen
     }
   },
+
+  // Update data
   updateData: async (
     id: string,
     updatedData: Omit<UserManagementData, "id">
   ) => {
-    // Implementation here
+    set({ isLoading: true, error: null });
+    try {
+      await axiosInstance.put(`/users/${id}`, updatedData);
+      set((state) => ({
+        userManagementData: state.userManagementData.map((data) =>
+          data.id === id ? { ...data, ...updatedData } : data
+        ),
+        isLoading: false,
+      }));
+    } catch (error) {
+      set({ error: getErrorMessage(error), isLoading: false });
+    }
   },
+
+  // Delete data
   deleteData: async (id: string) => {
     set({ isLoading: true, error: null });
     try {

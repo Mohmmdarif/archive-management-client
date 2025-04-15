@@ -47,6 +47,7 @@ export default function UserManagementContainer() {
     userManagementData,
     fetchUserManagementData,
     addData,
+    updateData,
     deleteData,
     error,
     clearError,
@@ -113,6 +114,62 @@ export default function UserManagementContainer() {
           },
         }),
       ],
+    },
+    {
+      fieldLabel: "Jenis Kelamin",
+      fieldName: "id_jenis_kelamin",
+      fieldType: "select" as const,
+      placeholder: "Pilih Jenis Kelamin",
+      options: [
+        { label: "Pria", value: 1 },
+        { label: "Wanita", value: 2 },
+      ],
+    },
+    {
+      fieldLabel: "Role",
+      fieldName: "role_id",
+      fieldType: "select" as const,
+      placeholder: "Pilih Role",
+      options: [
+        { label: "Koordinator TU", value: 1 },
+        { label: "Pimpinan", value: 2 },
+        { label: "Arsiparis Surat Masuk", value: 3 },
+        { label: "Arsiparis Surat Keluar", value: 4 },
+      ],
+    },
+  ];
+
+  const formInputEdit = [
+    {
+      fieldLabel: "Nama Lengkap",
+      fieldName: "nama_lengkap",
+      fieldType: "text" as const,
+      placeholder: "John Doe",
+    },
+    {
+      fieldLabel: "Email",
+      fieldName: "email",
+      fieldType: "text" as const,
+      placeholder: "johndoe@mail.com",
+      disable: true,
+    },
+    {
+      fieldLabel: "NIP",
+      fieldName: "nip",
+      fieldType: "text" as const,
+      placeholder: "09543453883",
+    },
+    {
+      fieldLabel: "No. Telp",
+      fieldName: "no_telp",
+      fieldType: "text" as const,
+      placeholder: "0857xxxxxx",
+    },
+    {
+      fieldLabel: "Jabatan",
+      fieldName: "jabatan",
+      fieldType: "text" as const,
+      placeholder: "Jabatan",
     },
     {
       fieldLabel: "Jenis Kelamin",
@@ -205,7 +262,7 @@ export default function UserManagementContainer() {
               icon={<BiEdit />}
               shape="circle"
               size="middle"
-              onClick={() => console.log("Edit")}
+              onClick={(e) => handleEdit(e, record)}
             />
             <ButtonIcon
               tooltipTitle="Delete"
@@ -228,26 +285,46 @@ export default function UserManagementContainer() {
     openModal();
   };
 
-  const handleSubmit = async (values: Omit<UserData, "id">) => {
+  const handleEdit = (e: React.MouseEvent, record: UserData) => {
+    e.stopPropagation();
+
+    setEditingData(record);
+    form.setFieldsValue(record);
+    openModal();
+  };
+
+  const handleSubmitAdd = async (values: Omit<UserData, "id">) => {
+    try {
+      await addData(values);
+
+      notify({
+        type: "success",
+        notifyTitle: "Berhasil",
+        notifyContent: "Data berhasil ditambahkan.",
+      });
+    } catch (error) {
+      notify({
+        type: "error",
+        notifyTitle: "Error!",
+        notifyContent: getErrorMessage(error as Error),
+      });
+    } finally {
+      closeModal();
+      form.resetFields();
+    }
+  };
+
+  // fungsi submit untuk edit user
+  const handleSubmitEdit = async (values: Omit<UserData, "id">) => {
     try {
       if (editingData) {
-        // await updateData(editingData.id, values);
-        // notify({
-        //   type: "success",
-        //   notifyTitle: "Berhasil",
-        //   notifyContent: "Data berhasil diperbarui.",
-        // });
-        console.log("Edit");
-      } else {
-        await addData(values);
-        await fetchUserManagementData();
-
-        notify({
-          type: "success",
-          notifyTitle: "Berhasil",
-          notifyContent: "Data berhasil ditambahkan.",
-        });
+        await updateData(editingData.id, values);
       }
+      notify({
+        type: "success",
+        notifyTitle: "Berhasil",
+        notifyContent: "Data berhasil diperbarui.",
+      });
     } catch (error) {
       notify({
         type: "error",
@@ -329,16 +406,25 @@ export default function UserManagementContainer() {
         isOpen={isModalOpen}
         handleOk={handleOk}
         handleCancel={() => {
-          closeModal();
           setEditingData(null);
+          closeModal();
         }}
       >
-        <UserManagementForm
-          key={editingData ? editingData.key : "add-form"}
-          formInput={formInput}
-          form={form}
-          onSubmit={handleSubmit}
-        />
+        {editingData ? (
+          <UserManagementForm
+            key="edit-form"
+            formInput={formInputEdit}
+            form={form}
+            onSubmit={handleSubmitEdit}
+          />
+        ) : (
+          <UserManagementForm
+            key="add-form"
+            formInput={formInput}
+            form={form}
+            onSubmit={handleSubmitAdd}
+          />
+        )}
       </DefaultModal>
     </section>
   );

@@ -6,11 +6,20 @@ import SidebarContent from "../ui/sidebar/SidebarContent";
 import useHeaderTitle from "../../hooks/useHeaderTitle";
 import LiveDateTime from "../ui/LiveDateTime";
 import { BiUser } from "react-icons/bi";
+import useUserManagementStore from "../../store/api/useUserManagementStore";
+import { useEffect } from "react";
 
 const { Header, Footer, Content } = Layout;
 
 export default function MainLayout() {
   const title = useHeaderTitle();
+  const { userMe, isLoading, fetchUserManagementDataById } =
+    useUserManagementStore();
+
+  useEffect(() => {
+    fetchUserManagementDataById();
+  }, [fetchUserManagementDataById]);
+
   return (
     <Layout className="h-screen overflow-hidden">
       {/* Sidebar */}
@@ -35,8 +44,20 @@ export default function MainLayout() {
                 <BiUser size={30} color="#C1C7CD" />
               </div>
               <div className="hidden md:flex flex-col text-left space-y-1">
-                <span className="text-base font-semibold">M Arif Fadhilah</span>
-                <span className="text-sm">Arsiparis</span>
+                {isLoading ? (
+                  <span className="text-sm font-semibold animate-pulse">
+                    Loading...
+                  </span>
+                ) : (
+                  <>
+                    <span className="text-sm font-semibold">
+                      {userMe.nama_lengkap || "[Nama Lengkap]"}
+                    </span>
+                    <span className="text-xs">
+                      {userMe.jabatan || "[Jabatan]"}
+                    </span>
+                  </>
+                )}
               </div>
             </button>
           </section>

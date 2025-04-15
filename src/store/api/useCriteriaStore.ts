@@ -78,7 +78,7 @@ const useCriteriaStore = create<CriteriaStore>((set) => ({
   deleteData: async (id) => {
     set({ isLoading: true, error: null });
     try {
-      await axiosInstance.delete(`/types/${id}`);
+      await axiosInstance.delete(`/criterias/${id}`);
       set((state) => ({
         criteriaData: state.criteriaData.filter((data) => data.id !== id),
         isLoading: false,

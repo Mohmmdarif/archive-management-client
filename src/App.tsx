@@ -12,8 +12,8 @@ import Category from "./pages/master-data/Category";
 import Type from "./pages/master-data/Type";
 import Criteria from "./pages/master-data/Criteria";
 import UserManagement from "./pages/UserManagement";
-import ProtectedRoute from "./components/ProtectedRoute";
 import TokenChecker from "./libs/utils/TokenChecker";
+import AuthRoute from "./components/AuthRoute";
 
 const router = createBrowserRouter([
   {
@@ -21,7 +21,9 @@ const router = createBrowserRouter([
     element: (
       <>
         <TokenChecker />
-        <MainLayout />
+        <AuthRoute>
+          <MainLayout />
+        </AuthRoute>
       </>
     ),
     children: [
@@ -57,13 +59,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/login",
-    element: <ProtectedRoute />,
-    children: [
-      {
-        index: true,
-        element: <Login />,
-      },
-    ],
+    element: (
+      <AuthRoute publicOnly>
+        <Login />
+      </AuthRoute>
+    ),
   },
   {
     path: "*",

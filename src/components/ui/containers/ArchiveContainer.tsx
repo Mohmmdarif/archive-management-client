@@ -1,11 +1,13 @@
-import { Badge, Space } from "antd";
+import { Badge, Flex, Space } from "antd";
 
 import TableData from "../table/TableData";
 import ButtonIcon from "../buttons/ButtonIcon";
 
-import { BiEdit } from "react-icons/bi";
+import { BiEdit, BiPlus } from "react-icons/bi";
 import { TbTrash } from "react-icons/tb";
 import { ColumnsType } from "antd/es/table";
+import SubHeader from "../headers/SubHeader";
+import Search from "../search/Search";
 
 interface SuratData {
   key: React.Key;
@@ -94,5 +96,36 @@ const columns: ColumnsType<SuratData> = [
 ];
 
 export default function ArchiveContainer() {
-  return <TableData dataSource={dataSource} columns={columns} />;
+  return (
+    <section className="bg-white w-full h-full p-5 rounded-lg overflow-x-auto">
+
+      {/* Sub Header */}
+      <SubHeader subHeaderTitle="Data Surat [Masuk/Keluar]" />
+
+      {/* Search */}
+      <Flex
+        justify="space-between"
+        align="center"
+        style={{ marginBottom: 20, marginTop: 20 }}
+        gap={10}
+      >
+        <Search />
+
+        <ButtonIcon
+          type="primary"
+          icon={<BiPlus />}
+          onClick={() => console.log("Add")}
+          size="middle"
+          shape="default"
+        >
+          Upload Surat
+        </ButtonIcon>
+      </Flex>
+
+      {/* Table Data */}
+      <div className="mt-5">
+        <TableData dataSource={dataSource} columns={columns} />
+      </div>
+    </section>
+  )
 }

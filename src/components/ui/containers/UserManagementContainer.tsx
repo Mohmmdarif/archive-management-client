@@ -367,7 +367,7 @@ export default function UserManagementContainer() {
   };
 
   return (
-    <section className="bg-white w-full h-full p-5 rounded-lg overflow-x-auto">
+    <section className="bg-white w-full h-full p-5 rounded-lg">
       {/* Notification Context */}
       {contextHolder}
 
@@ -394,11 +394,13 @@ export default function UserManagementContainer() {
         </ButtonIcon>
       </Flex>
 
-      <TableData
-        dataSource={(filteredData as UserData[]) || []}
-        columns={columns}
-        showModalOnRowClick
-      />
+      <div className="overflow-x-auto max-h-[350px]">
+        <TableData
+          dataSource={(filteredData as UserData[]) || []}
+          columns={columns}
+          showModalOnRowClick
+        />
+      </div>
 
       {/* Modal Form */}
       <DefaultModal

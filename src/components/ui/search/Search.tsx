@@ -7,7 +7,7 @@ export default function Search() {
   return (
     <Input
       size="middle"
-      placeholder="Search..."
+      placeholder="Pencarian..."
       prefix={<BiSearch size={18} color="gray" />}
       style={{ width: 300 }}
       value={searchQuery}

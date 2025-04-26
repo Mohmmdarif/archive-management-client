@@ -21,7 +21,7 @@ export default function MainLayout() {
   }, [fetchUserManagementDataById]);
 
   return (
-    <Layout className="h-screen overflow-hidden">
+    <Layout className="h-screen">
       {/* Sidebar */}
       <Sidebar>
         {/* Sidebar Content */}
@@ -29,7 +29,7 @@ export default function MainLayout() {
           <SidebarContent />
         </Layout>
       </Sidebar>
-      <Layout>
+      <Layout className="flex flex-col h-full">
         {/* Header */}
         <Header
           style={{ backgroundColor: "#F2F5FC", color: "black", height: 110 }}
@@ -66,7 +66,9 @@ export default function MainLayout() {
         {/* Content */}
         <Content
           style={{
-            padding: "24px 16px 0",
+            padding: "24px 16px",
+            overflowY: "auto",
+            flex: 1,
             overflow: "initial",
             backgroundColor: "#F2F5FC",
           }}

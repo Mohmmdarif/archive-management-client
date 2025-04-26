@@ -394,7 +394,7 @@ export default function UserManagementContainer() {
         </ButtonIcon>
       </Flex>
 
-      <div className="overflow-x-auto max-h-[350px]">
+      <div className="overflow-y-auto max-h-[280px] md:max-h-[500px]">
         <TableData
           dataSource={(filteredData as UserData[]) || []}
           columns={columns}

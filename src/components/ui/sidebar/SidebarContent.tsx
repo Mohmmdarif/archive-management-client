@@ -9,7 +9,6 @@ import ButtonIcon from "../buttons/ButtonIcon";
 import { IoLogOutOutline } from "react-icons/io5";
 import useAuthStore from "../../../store/api/useAuthStore";
 
-
 export default function SidebarContent() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -42,17 +41,21 @@ export default function SidebarContent() {
       />
 
       {!collapsed && (
-        <div className="bottom-0 absolute w-full flex py-4 pl-5">
+        <div className="bottom-0 absolute w-full flex py-4">
           <ButtonIcon
-            icon={<IoLogOutOutline />}
+            icon={<IoLogOutOutline size={15} />}
             onClick={() => logout()}
             type="text"
+            style={{
+              color: "red",
+              fontWeight: 500,
+              marginLeft: "15px",
+            }}
           >
             Logout
           </ButtonIcon>
         </div>
       )}
-
     </>
   );
 }

@@ -156,12 +156,12 @@ export default function DashboardContainer() {
       {/* Notify Context */}
       {contextHolder}
 
-      <span className="text-base md:text-xl font-normal">
+      <span className="text-base md:text-lg font-normal">
         Selamat Datang,{" "}
         <span className="font-semibold">{userMe?.nama_lengkap}</span>
       </span>
 
-      <section className="overflow-auto h-full">
+      <section className="h-full">
         {/* Dashboard View Data Surat */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           {datas.map((data, index) => (
@@ -189,7 +189,7 @@ export default function DashboardContainer() {
           <Search />
 
           {/* Table Data */}
-          <div className="mt-5 overflow-x-auto max-h-[350px]">
+          <div className="mt-5">
             <TableData dataSource={dataSource} columns={columns} />
           </div>
         </div>

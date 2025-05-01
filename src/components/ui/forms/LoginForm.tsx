@@ -3,7 +3,6 @@ import useAuthStore from "../../../store/api/useAuthStore";
 import useNotify from "../../../hooks/useNotify";
 import { useEffect } from "react";
 import { getErrorMessage } from "../../../libs/utils/errorHandler";
-import { useNavigate } from "react-router";
 
 type LoginFormType = {
   email: string;
@@ -12,9 +11,8 @@ type LoginFormType = {
 
 export default function LoginForm() {
   const [form] = Form.useForm<LoginFormType>();
-  const navigate = useNavigate();
   const { notify, contextHolder } = useNotify();
-  const { login, isLoading, error, token } = useAuthStore();
+  const { login, isLoading, error } = useAuthStore();
   // const token = useAuthStore((state) => state.token);
 
   useEffect(() => {

@@ -8,11 +8,12 @@ type ButtonIconProps = {
   style?: React.CSSProperties;
   tooltipTitle?: "Edit" | "Delete" | "Ajukan";
   children?: React.ReactNode;
-  onClick: (() => void) | ((e: React.MouseEvent<HTMLElement>) => void);
+  disabled?: boolean;
+  onClick?: (() => void) | ((e: React.MouseEvent<HTMLElement>) => void);
 };
 
 export default function ButtonIcon(props: ButtonIconProps) {
-  const { icon, type, size, shape, style, tooltipTitle, children, onClick } =
+  const { icon, type, size, shape, style, tooltipTitle, children, disabled, onClick } =
     props;
   return (
     <Tooltip title={tooltipTitle}>
@@ -22,6 +23,7 @@ export default function ButtonIcon(props: ButtonIconProps) {
         shape={shape}
         size={size}
         icon={icon}
+        disabled={disabled}
         style={{
           ...style,
         }}

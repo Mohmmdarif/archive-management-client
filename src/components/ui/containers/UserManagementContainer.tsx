@@ -1,4 +1,4 @@
-import { Badge, Flex, message, Modal, Space, Tag } from "antd";
+import { Badge, Flex, Modal, Space, Tag } from "antd";
 
 import TableData from "../table/TableData";
 import ButtonIcon from "../buttons/ButtonIcon";
@@ -105,8 +105,8 @@ export default function UserManagementContainer() {
       placeholder: "*******",
       rules: [
         { required: true, message: "Konfirmasi kata sandi harus diisi!" },
-        ({ getFieldValue }: { getFieldValue: (field: string) => any }) => ({
-          validator(_: any, value: any) {
+        ({ getFieldValue }: { getFieldValue: (field: string) => string }) => ({
+          validator(_: unknown, value: string) {
             if (!value || getFieldValue("password") === value) {
               return Promise.resolve();
             }
@@ -367,7 +367,7 @@ export default function UserManagementContainer() {
   };
 
   return (
-    <section className="bg-white w-full h-full p-5 rounded-lg">
+    <section className="bg-white w-full h-auto p-5 rounded-lg">
       {/* Notification Context */}
       {contextHolder}
 
@@ -378,7 +378,7 @@ export default function UserManagementContainer() {
       <Flex
         justify="space-between"
         align="center"
-        style={{ marginBottom: 20, marginTop: 20 }}
+        style={{ marginBottom: 15, marginTop: 15 }}
         gap={10}
       >
         <Search />
@@ -394,7 +394,7 @@ export default function UserManagementContainer() {
         </ButtonIcon>
       </Flex>
 
-      <div className="overflow-y-auto max-h-[280px] md:max-h-[500px]">
+      <div className="overflow-y-auto max-h-full">
         <TableData
           dataSource={(filteredData as UserData[]) || []}
           columns={columns}

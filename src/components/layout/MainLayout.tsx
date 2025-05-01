@@ -9,12 +9,13 @@ import { BiUser } from "react-icons/bi";
 import useUserManagementStore from "../../store/api/useUserManagementStore";
 import { useEffect } from "react";
 
-const { Header, Footer, Content } = Layout;
+const { Header, Content } = Layout;
 
 export default function MainLayout() {
   const title = useHeaderTitle();
   const { userMe, isLoading, fetchUserManagementDataById } =
     useUserManagementStore();
+
 
   useEffect(() => {
     fetchUserManagementDataById();
@@ -29,7 +30,7 @@ export default function MainLayout() {
           <SidebarContent />
         </Layout>
       </Sidebar>
-      <Layout className="flex flex-col h-full">
+      <Layout className="flex flex-col h-full overflow-y-auto">
         {/* Header */}
         <Header
           style={{ backgroundColor: "#F2F5FC", color: "black", height: 110 }}
@@ -66,7 +67,7 @@ export default function MainLayout() {
         {/* Content */}
         <Content
           style={{
-            padding: "24px 16px",
+            padding: "10px",
             overflowY: "auto",
             flex: 1,
             overflow: "initial",
@@ -75,11 +76,11 @@ export default function MainLayout() {
         >
           <Outlet />
         </Content>
-        <Footer className="z-10">
+        {/* <Footer className="z-10">
           <div className="text-center text-gray-500">
             &copy; 2021. All Right Reserved. Fakultas Ilmu Komputer
           </div>
-        </Footer>
+        </Footer> */}
       </Layout>
     </Layout>
   );

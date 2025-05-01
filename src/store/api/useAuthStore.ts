@@ -12,6 +12,7 @@ interface LoginData {
 interface AuthStore {
   token: string;
   isLoggedIn: boolean;
+  decodedToken: { exp: number; [key: string]: unknown } | null;
   isLoading: boolean;
   error: string | null;
   login: (loginData: LoginData) => Promise<void>;
@@ -26,6 +27,7 @@ const useAuthStore = create<AuthStore>()(
     (set, get) => ({
       token: "",
       isLoggedIn: false,
+      decodedToken: null,
       isLoading: false,
       error: null,
 
@@ -35,7 +37,20 @@ const useAuthStore = create<AuthStore>()(
         try {
           const response = await axiosInstance.post("/auth/login", loginData);
           const token = response.data.data;
-          set({ token, isLoggedIn: true, isLoading: false, error: null });
+
+          const decodedToken = jwtDecode<{
+            exp: number;
+            [key: string]: unknown;
+          }>(token);
+
+          // localStorage.setItem("decoded", JSON.stringify(decodedToken));
+          set({
+            token,
+            decodedToken: decodedToken,
+            isLoggedIn: true,
+            isLoading: false,
+            error: null,
+          });
           // localStorage.setItem("authToken", response.data.data);
         } catch (error) {
           const errorMessage = getErrorMessage(error);
@@ -46,6 +61,7 @@ const useAuthStore = create<AuthStore>()(
 
       // Logout
       logout: () => {
+        localStorage.removeItem("authToken");
         set({ token: "", isLoggedIn: false, error: null });
       },
 
@@ -69,7 +85,7 @@ const useAuthStore = create<AuthStore>()(
       // Check if user is authenticated
       checkAuth: () => {
         const token = get().token;
-        if (token) {
+        if (token && !get().isTokenExpired()) {
           set({ token });
         } else {
           set({ token: "" });

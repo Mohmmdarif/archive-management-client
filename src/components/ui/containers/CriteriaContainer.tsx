@@ -211,8 +211,8 @@ export default function CriteriaContainer() {
           nameFieldName="nama_kriteria"
           descriptionFieldLabel="Keterangan"
           descriptionFieldName="keterangan"
-          namePlaceholder="Akademik, ..."
-          descriptionPlaceholder="Kategori surat yang diperuntukkan untuk ..."
+          namePlaceholder="Permohonan, Edaran ..."
+          descriptionPlaceholder="Kriteria surat untuk ..."
           onSubmit={handleSubmit}
           form={form}
         />

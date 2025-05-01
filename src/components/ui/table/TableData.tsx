@@ -1,6 +1,5 @@
 import { Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import useModalStore from "../../../store/useModal";
 import DetailUser from "../DetailUser";
 import { useState } from "react";
 
@@ -32,9 +31,9 @@ export default function TableData<T extends object>({
         columns={columns}
         scroll={{ x: "max-content" }}
         pagination={
-          dataSource.length > 10
-            ? { pageSize: 10, position: ["bottomCenter"] }
-            : false
+          dataSource.length >= 10
+            ? { pageSize: 10, position: ["bottomRight"], showSizeChanger: false, responsive: true }
+            : { showSizeChanger: false, responsive: true }
         }
         onRow={(record) => {
           return {

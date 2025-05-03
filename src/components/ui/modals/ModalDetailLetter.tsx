@@ -26,15 +26,34 @@ type EntitiesNER = {
 }[];
 
 interface LetterData {
-  file: File | null;
-  classification: Classification;
-  entities: EntitiesNER;
-  text: string;
-  filePath: string;
+  cloudinaryUrl: string;
+  publicId: string;
+  data: {
+    classification: Classification;
+    entities: EntitiesNER;
+    text: string;
+  };
 }
 
-interface LetterDetails {
-  no_agenda?: number | null;
+interface SuratMasuk {
+  id: string;
+  no_agenda: number;
+  id_kategori_surat: number;
+  jumlah_lampiran: number;
+  id_user_disposisi: string | null;
+  tanggal_terima: Date;
+  id_status_disposisi: number;
+  tanggal_ajuan_disposisi: Date;
+  keterangan: string;
+}
+
+interface SuratKeluar {
+  id: string;
+  tanggal_kirim: Date;
+}
+
+export interface LetterDetails {
+  id: string;
   tanggal_terima?: Date | null;
   jumlah_lampiran?: number | null;
   created_at: Date;
@@ -50,7 +69,8 @@ interface LetterDetails {
   penerima_surat: string; // penerima surat (text)
   filename: string;
   path_file: string;
-  tanggal_kirim: Date | null;
+  Surat_Masuk?: SuratMasuk[];
+  surat_keluar?: SuratKeluar[];
 }
 
 interface DetailSuratProps {
@@ -66,10 +86,10 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
   const { typeData, fetchTypeData } = useTypeStore();
   const { categoryData, fetchCategoryData } = useCategoryStore();
   const { criteriaData, fetchCriteriaData } = useCriteriaStore();
-  const { savedConfirmedData } = useLetterStore();
+  const { savedConfirmedData, fetchSuratData } = useLetterStore();
   const { userMe, isLoading, fetchUserManagementData } =
     useUserManagementStore();
-  const { filename, file_path } = extractFilePathParts(data[0]?.filePath || "");
+  // const { filename, file_path } = extractFilePathParts(data[0]?.filePath || "");
 
   useEffect(() => {
     fetchTypeData();
@@ -79,11 +99,11 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
     fetchUserManagementData();
   }, [fetchTypeData, fetchCategoryData, fetchCriteriaData, fetchClassifierData, fetchUserManagementData]);
 
-  console.log(userMe)
+  console.log("Data surat:", data);
   useEffect(() => {
     if (visible && data.length > 0 && userMe) {
-      const entity = data[0].entities;
-      const classification = data[0].classification[0];
+      const entity = data[0].data.entities;
+      const classification = data[0].data.classification[0];
 
       form.setFieldsValue({
         no_agenda: null,
@@ -100,17 +120,18 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
         id_jenis_surat: typeData.find((type) => type.nama_jenis === "Biasa")?.id ?? "",
         pengirim_surat: "",
         penerima_surat: "",
-        filename: filename,
-        path_file: file_path,
+        filename: data[0].publicId,
+        path_file: data[0].cloudinaryUrl,
         tanggal_kirim: dayjs(),
       });
     }
-  }, [visible, data, form, classifierData, criteriaData, typeData, filename, file_path, fetchUserManagementData, userMe]);
+  }, [visible, data, form, classifierData, criteriaData, typeData, fetchUserManagementData, userMe]);
 
   const handleSave = async (values: LetterDetails) => {
-
     try {
       await savedConfirmedData(values);
+      await fetchSuratData();
+
       notify({
         type: "success",
         notifyTitle: "Success!",
@@ -130,7 +151,7 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
 
   const handleDownload = async () => {
     try {
-      const response = await fetch(data[0]?.filePath, {
+      const response = await fetch(data[0].cloudinaryUrl, {
         method: "GET",
       });
 
@@ -142,7 +163,7 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = data[0]?.file?.name || "file.pdf";
+      a.download = data[0]?.publicId || "file.pdf";
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -152,27 +173,41 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
     }
   };
 
-  function extractFilePathParts(filePath: string): { filename: string; file_path: string } {
-    if (!filePath) return { filename: "", file_path: "" };
+  // function extractFilePathParts(filePath: string): { filename: string; file_path: string } {
+  //   if (!filePath) return { filename: "", file_path: "" };
 
-    const parts = filePath.split("/");
-    const filename = parts.pop() ?? "";
-    const file_path = parts.join("/") + "/";
+  //   const parts = filePath.split("/");
+  //   const filename = parts.pop() ?? "";
+  //   const file_path = parts.join("/") + "/";
 
-    return { filename, file_path };
+  //   return { filename, file_path };
+  // }
+
+  const handleCancelModal = () => {
+    Modal.confirm({
+      title: "Konfirmasi",
+      content: "Apakah Anda yakin ingin menutup tanpa menyimpan?",
+      okText: "Ya",
+      cancelText: "Tidak",
+      onOk: () => {
+        form.resetFields();
+        onClose();
+      },
+    });
   }
 
-  console.log("Data Surat:", data);
   return (
     <>
       {/* Notification Context */}
       {contextHolder}
       <Modal
         open={visible}
-        title="Detail Surat"
-        onCancel={onClose}
+        title="Konfirmasi Detail Surat"
+        onCancel={
+          handleCancelModal
+        }
         footer={[
-          <Button key="cancel" onClick={onClose}>
+          <Button key="cancel" onClick={handleCancelModal}>
             Batal
           </Button>,
           <Button key="save" type="primary" onClick={() => form.submit()}>
@@ -188,21 +223,23 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
         >
           <Row gutter={16} className="my-4">
             {
-              data[0]?.classification[0]?.Classify === "surat masuk" ? (
+              data[0]?.data?.classification[0]?.Classify === "surat masuk" ? (
                 <Col span={12}>
-                  <Descriptions title="Informasi Umum" bordered column={1} size="small">
+                  <Descriptions title="Informasi Umum" bordered column={1} size="small" labelStyle={{ width: "30%", fontWeight: "revert" }}>
                     <Descriptions.Item label="No. Agenda">
-                      <Form.Item name="no_agenda" noStyle>
+                      <Form.Item name="no_agenda" noStyle rules={[{ required: true, message: "No. Agenda wajib diisi" }]}>
                         <Input />
                       </Form.Item>
                     </Descriptions.Item>
+
                     <Descriptions.Item label="Tgl. Diterima">
-                      <Form.Item name="tanggal_terima" noStyle>
+                      <Form.Item name="tanggal_terima" noStyle rules={[{ required: true, message: "Tgl. Diterima wajib diisi" }]}>
                         <DatePicker format="DD MMMM YYYY" className="w-full" />
                       </Form.Item>
                     </Descriptions.Item>
+
                     <Descriptions.Item label="Lampiran">
-                      <Form.Item name="jumlah_lampiran" noStyle>
+                      <Form.Item name="jumlah_lampiran" noStyle rules={[{ required: true, message: "Jumlah Lampiran wajib diisi" }]}>
                         <Input />
                       </Form.Item>
                     </Descriptions.Item>
@@ -211,17 +248,17 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
               ) : null
             }
             <Col span={12}>
-              <Descriptions title="Detail User" bordered column={1} size="small">
+              <Descriptions title="Detail User" bordered column={1} size="small" labelStyle={{ width: "35%", fontWeight: "revert" }}>
                 <Descriptions.Item label="Tgl. Diarsipkan">
-                  <Form.Item name="created_at" noStyle>
-                    <DatePicker format="DD MMMM YYYY" className="w-full" bordered={false} value={dayjs(form.getFieldValue("created_at"))?.isValid()
-                      ? dayjs(form.getFieldValue("created_at")).format("DD MMMM YYYY")
-                      : "-"} readOnly />
+                  <Form.Item name="created_at" noStyle rules={[{ required: true, message: "Tgl. Diarsipkan wajib diisi" }]}>
+                    <DatePicker format="DD MMMM YYYY" className="w-full" bordered={false} value={dayjs(form?.getFieldValue("created_at"))?.isValid()
+                      ? dayjs(form?.getFieldValue("created_at")).format("DD MMMM YYYY")
+                      : "-"} disabled />
                   </Form.Item>
                 </Descriptions.Item>
                 <Descriptions.Item label="Pengarsip">
-                  <Form.Item name="pengarsip" noStyle>
-                    <Input bordered={false} value={isLoading ? "-" : form.getFieldValue("pengarsip")} readOnly />
+                  <Form.Item name="pengarsip" noStyle rules={[{ required: true, message: "Pengarsip wajib diisi" }]}>
+                    <Input bordered={false} value={isLoading ? "-" : form?.getFieldValue("pengarsip")} readOnly />
                   </Form.Item>
                   {
 
@@ -231,19 +268,19 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
           </Row>
 
 
-          <Descriptions title="Informasi Detail Surat" bordered column={1} size="small">
+          <Descriptions title="Informasi Detail Surat" bordered column={1} size="small" labelStyle={{ width: "30%", fontWeight: "revert" }}>
             <Descriptions.Item label="No. Surat">
-              <Form.Item name="no_surat" noStyle>
+              <Form.Item name="no_surat" noStyle rules={[{ required: true, message: "No. Surat wajib diisi" }]}>
                 <Input />
               </Form.Item>
             </Descriptions.Item>
             <Descriptions.Item label="Tgl. Surat">
-              <Form.Item name="tanggal_surat" noStyle>
+              <Form.Item name="tanggal_surat" noStyle rules={[{ required: true, message: "Tgl. Surat wajib diisi" }]}>
                 <DatePicker format="DD MMMM YYYY" className="w-full" />
               </Form.Item>
             </Descriptions.Item>
             <Descriptions.Item label="Tipe Surat">
-              <Form.Item name="id_type_surat" noStyle>
+              <Form.Item name="id_type_surat" noStyle rules={[{ required: true, message: "Tipe Surat wajib diisi" }]}>
                 <Select className="w-full capitalize">
                   {classifierData.map((type) => (
                     <Option key={type.id} value={type.id}>
@@ -254,12 +291,12 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
               </Form.Item>
             </Descriptions.Item>
             <Descriptions.Item label="Perihal">
-              <Form.Item name="perihal_surat" noStyle>
+              <Form.Item name="perihal_surat" noStyle rules={[{ required: true, message: "Perihal Surat wajib diisi" }]}>
                 <Input />
               </Form.Item>
             </Descriptions.Item>
             <Descriptions.Item label="Jenis Surat">
-              <Form.Item name="id_jenis_surat" noStyle>
+              <Form.Item name="id_jenis_surat" noStyle rules={[{ required: true, message: "Jenis Surat wajib diisi" }]}>
                 <Select className="w-full">
                   {typeData.map((type) => (
                     <Option key={type.id} value={type.id}>
@@ -270,7 +307,7 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
               </Form.Item>
             </Descriptions.Item>
             <Descriptions.Item label="Kriteria Surat">
-              <Form.Item name="id_kriteria_surat" noStyle>
+              <Form.Item name="id_kriteria_surat" noStyle rules={[{ required: true, message: "Kriteria Surat wajib diisi" }]}>
                 <Select className="w-full capitalize">
                   {criteriaData.map((criteria) => (
                     <Option key={criteria.id} value={criteria.id}>
@@ -281,9 +318,9 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
               </Form.Item>
             </Descriptions.Item>
             {
-              data[0]?.classification[0]?.Classify === "surat masuk" ? (
+              data[0]?.data?.classification[0]?.Classify === "surat masuk" ? (
                 <Descriptions.Item label="Kategori Surat">
-                  <Form.Item name="id_kategori_surat" noStyle>
+                  <Form.Item name="id_kategori_surat" noStyle rules={[{ required: true, message: "Kategori Surat wajib diisi" }]}>
                     <Select className="w-full">
                       {categoryData.map((category) => (
                         <Option key={category.id} value={category.id}>
@@ -296,19 +333,19 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
               ) : null
             }
             <Descriptions.Item label="Pengirim Surat">
-              <Form.Item name="pengirim_surat" noStyle>
+              <Form.Item name="pengirim_surat" noStyle rules={[{ required: true, message: "Pengirim Surat wajib diisi" }]}>
                 <Input />
               </Form.Item>
             </Descriptions.Item>
             <Descriptions.Item label="Penerima Surat">
-              <Form.Item name="penerima_surat" noStyle>
+              <Form.Item name="penerima_surat" noStyle rules={[{ required: true, message: "Penerima Surat wajib diisi" }]}>
                 <Input />
               </Form.Item>
             </Descriptions.Item>
             {
-              data[0]?.classification[0]?.Classify === "surat keluar" ? (
+              data[0]?.data?.classification[0]?.Classify === "surat keluar" ? (
                 <Descriptions.Item label="Tgl. Kirim Surat">
-                  <Form.Item name="tanggal_kirim" noStyle>
+                  <Form.Item name="tanggal_kirim" noStyle rules={[{ required: true, message: "Tgl. Kirim Surat wajib diisi" }]}>
                     <DatePicker format="DD MMMM YYYY" className="w-full" />
                   </Form.Item>
                 </Descriptions.Item>
@@ -316,18 +353,18 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
             }
             <Descriptions.Item label="File Path" className="hidden">
               <Form.Item name="path_file" noStyle>
-                <Input type="hidden" value={file_path} readOnly bordered={false} />
+                <Input type="hidden" value={data[0]?.cloudinaryUrl} readOnly bordered={false} />
               </Form.Item>
             </Descriptions.Item>
             <Descriptions.Item label="File Name" className="hidden">
               <Form.Item name="filename" noStyle>
-                <Input type="hidden" value={filename} readOnly bordered={false} />
+                <Input type="hidden" value={data[0]?.publicId} readOnly bordered={false} />
               </Form.Item>
             </Descriptions.Item>
 
             <Descriptions.Item label="File">
               <Space>
-                <Button type="primary" size="small" onClick={() => encodeURI(data[0]?.filePath) && window.open(data[0]?.filePath, "_blank")}>
+                <Button type="primary" size="small" onClick={() => data[0]?.cloudinaryUrl && window.open(data[0]?.cloudinaryUrl, "_blank")}>
                   <IoEyeOutline />
                   Pratinjau
                 </Button>

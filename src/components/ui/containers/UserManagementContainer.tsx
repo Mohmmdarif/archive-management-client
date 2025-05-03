@@ -395,10 +395,11 @@ export default function UserManagementContainer() {
       </Flex>
 
       <div className="overflow-y-auto max-h-full">
-        <TableData
+        <TableData<UserData>
           dataSource={(filteredData as UserData[]) || []}
           columns={columns}
           showModalOnRowClick
+          type="userDataDetails"
         />
       </div>
 

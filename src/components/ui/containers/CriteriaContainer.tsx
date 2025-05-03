@@ -187,7 +187,7 @@ export default function CriteriaContainer() {
       </Flex>
 
       {/* Table Data */}
-      <TableData
+      <TableData<CriteriaData>
         key={criteriaData.length}
         dataSource={(filteredData as CriteriaData[]) || []}
         columns={columns}

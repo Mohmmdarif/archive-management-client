@@ -187,7 +187,7 @@ export default function TypeContainer() {
       </Flex>
 
       {/* Table Data */}
-      <TableData
+      <TableData<TypeData>
         key={typeData.length}
         dataSource={(filteredData as TypeData[]) || []}
         columns={columns}

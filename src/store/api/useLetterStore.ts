@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { axiosInstance } from "../../libs/axios";
 import { getErrorMessage } from "../../libs/utils/errorHandler";
+import useAuthStore from "./useAuthStore";
 
 type Classification = {
   Classify: string;
@@ -13,15 +14,34 @@ type EntitiesNER = {
 }[];
 
 interface LetterData {
-  filePath: string;
-  file: File | null;
-  classification: Classification;
-  entities: EntitiesNER;
-  text: string;
+  cloudinaryUrl: string;
+  publicId: string;
+  data: {
+    classification: Classification;
+    entities: EntitiesNER;
+    text: string;
+  };
+}
+
+interface SuratMasuk {
+  id: string;
+  no_agenda: number;
+  id_kategori_surat: number;
+  jumlah_lampiran: number;
+  id_user_disposisi: string | null;
+  tanggal_terima: Date;
+  id_status_disposisi: number;
+  tanggal_ajuan_disposisi: Date;
+  keterangan: string;
+}
+
+interface SuratKeluar {
+  id: string;
+  tanggal_kirim: Date;
 }
 
 interface LetterDetails {
-  no_agenda?: number | null;
+  id: string;
   tanggal_terima?: Date | null;
   jumlah_lampiran?: number | null;
   created_at: Date;
@@ -37,6 +57,8 @@ interface LetterDetails {
   penerima_surat: string; // penerima surat (text)
   filename: string;
   path_file: string;
+  Surat_Masuk?: SuratMasuk[];
+  surat_keluar?: SuratKeluar[];
 }
 
 interface LetterStore {
@@ -49,7 +71,14 @@ interface LetterStore {
   // Add data with file upload
   addData: (newData: { [key: string]: File; file: File }) => Promise<void>;
   savedConfirmedData: (payload: LetterDetails) => Promise<void>;
+  deleteData: (id: string) => Promise<void>;
+  updateData: (
+    id: string,
+    updatedData: Partial<LetterDetails>
+  ) => Promise<void>;
 }
+
+const getToken = () => useAuthStore.getState().token;
 
 const useLetterStore = create<LetterStore>((set) => ({
   letterData: [],
@@ -62,7 +91,6 @@ const useLetterStore = create<LetterStore>((set) => ({
     try {
       const response = await axiosInstance.get("/surat/letters");
       const { data } = response.data;
-      console.log("Data surat:", data);
       set({ letterDetails: data || [], isLoading: false });
     } catch (error) {
       set({ error: getErrorMessage(error), isLoading: false });
@@ -85,18 +113,21 @@ const useLetterStore = create<LetterStore>((set) => ({
           "Content-Type": "multipart/form-data",
         },
       });
+      console.log("Response:", response.data);
 
-      const { classification, entities, text } = response.data.data;
-      const { filePath } = response.data.data; // Extract filePath from response data
+      const { cloudinaryUrl, publicId, data } = response.data.data;
+      const { classification, entities, text } = data;
       set((state) => ({
         letterData: [
           ...state.letterData,
           {
-            file: newData.file,
-            filePath,
-            classification,
-            entities,
-            text,
+            cloudinaryUrl,
+            publicId,
+            data: {
+              classification,
+              entities,
+              text,
+            },
           },
         ],
         isLoading: false,
@@ -114,6 +145,42 @@ const useLetterStore = create<LetterStore>((set) => ({
       });
       set((state) => ({
         letterDetails: state.letterDetails,
+        isLoading: false,
+      }));
+    } catch (error) {
+      set({ error: getErrorMessage(error), isLoading: false });
+    }
+  },
+
+  deleteData: async (id: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      await axiosInstance.delete(`/surat/${id}`, {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
+      set((state) => ({
+        letterDetails: state.letterDetails.filter((item) => item.id !== id),
+        isLoading: false,
+      }));
+    } catch (error) {
+      set({ error: getErrorMessage(error), isLoading: false });
+    }
+  },
+
+  updateData: async (id: string, updatedData: Partial<LetterDetails>) => {
+    set({ isLoading: true, error: null });
+    try {
+      await axiosInstance.put(`/surat/${id}`, updatedData, {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
+      set((state) => ({
+        letterDetails: state.letterDetails.map((item) =>
+          item.id === id ? { ...item, ...updatedData } : item
+        ),
         isLoading: false,
       }));
     } catch (error) {

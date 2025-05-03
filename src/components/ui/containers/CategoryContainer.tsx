@@ -187,11 +187,10 @@ export default function CategoryContainer() {
       </Flex>
 
       {/* Table Data */}
-      <TableData
+      <TableData<CategoryData>
         key={categoryData.length}
         dataSource={(filteredData as CategoryData[]) || []}
-        columns={columns}
-      />
+        columns={columns} />
 
       {/* Modal Form */}
       <DefaultModal

@@ -6,7 +6,7 @@ type ButtonIconProps = {
   size?: "small" | "middle" | "large";
   shape?: "default" | "circle" | "round";
   style?: React.CSSProperties;
-  tooltipTitle?: "Edit" | "Delete" | "Ajukan";
+  tooltipTitle?: "Edit" | "Delete" | "Ajukan" | "Pratinjau";
   children?: React.ReactNode;
   disabled?: boolean;
   onClick?: (() => void) | ((e: React.MouseEvent<HTMLElement>) => void);

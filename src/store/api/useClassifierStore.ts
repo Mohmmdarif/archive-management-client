@@ -34,6 +34,7 @@ const useClassifierStore = create<ClassifierStore>((set) => ({
       });
     } catch (error) {
       set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
     }
   },
 }));

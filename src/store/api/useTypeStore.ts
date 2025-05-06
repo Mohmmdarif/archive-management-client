@@ -38,6 +38,7 @@ const useTypeStore = create<TypeStore>((set) => ({
       });
     } catch (error) {
       set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
     }
   },
 
@@ -52,6 +53,7 @@ const useTypeStore = create<TypeStore>((set) => ({
       }));
     } catch (error) {
       set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
     }
   },
 
@@ -68,6 +70,7 @@ const useTypeStore = create<TypeStore>((set) => ({
       }));
     } catch (error) {
       set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
     }
   },
 
@@ -82,6 +85,7 @@ const useTypeStore = create<TypeStore>((set) => ({
       }));
     } catch (error) {
       set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
     }
   },
 }));

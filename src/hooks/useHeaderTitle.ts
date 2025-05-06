@@ -3,11 +3,17 @@ import { useLocation } from "react-router";
 const useHeaderTitle = () => {
   const location = useLocation();
 
+  if (location.pathname.startsWith("/arsip/disposisi/")) {
+    return "Disposisi Surat";
+  }
+
   switch (location.pathname) {
     case "/dashboard":
       return "Dashboard";
     case "/arsip":
       return "Arsip";
+    case "/disposisi":
+      return "Disposisi";
     case "/manajemen-user":
       return "Manajemen User";
     case "/kategori-surat":

@@ -63,11 +63,12 @@ interface LetterDetails {
 
 interface LetterStore {
   letterData: LetterData[];
-  letterDetails: LetterDetails[];
+  letterDetails: LetterDetails;
   isLoading: boolean;
   error: string | null;
 
   fetchSuratData: () => Promise<void>;
+  fetchSuratById: (id: string) => Promise<void>;
   // Add data with file upload
   addData: (newData: { [key: string]: File; file: File }) => Promise<void>;
   savedConfirmedData: (payload: LetterDetails) => Promise<void>;
@@ -82,7 +83,7 @@ const getToken = () => useAuthStore.getState().token;
 
 const useLetterStore = create<LetterStore>((set) => ({
   letterData: [],
-  letterDetails: [],
+  letterDetails: {} as LetterDetails,
   isLoading: false,
   error: null,
 
@@ -91,11 +92,29 @@ const useLetterStore = create<LetterStore>((set) => ({
     try {
       const response = await axiosInstance.get("/surat/letters");
       const { data } = response.data;
-      set({ letterDetails: data || [], isLoading: false });
+      set({ letterDetails: data || {}, isLoading: false });
     } catch (error) {
       set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
     }
   },
+
+  fetchSuratById: async (id: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axiosInstance.get(`/surat/letters/${id}`, {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
+      const { data } = response.data;
+      set({ letterDetails: data || {}, isLoading: false });
+    } catch (error) {
+      set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
+    }
+  },
+
   // Add data with file upload
   addData: async (newData: { [key: string]: File; file: File }) => {
     set({ isLoading: true, error: null });
@@ -113,7 +132,6 @@ const useLetterStore = create<LetterStore>((set) => ({
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log("Response:", response.data);
 
       const { cloudinaryUrl, publicId, data } = response.data.data;
       const { classification, entities, text } = data;
@@ -134,6 +152,7 @@ const useLetterStore = create<LetterStore>((set) => ({
       }));
     } catch (error) {
       set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
     }
   },
 
@@ -149,6 +168,7 @@ const useLetterStore = create<LetterStore>((set) => ({
       }));
     } catch (error) {
       set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
     }
   },
 
@@ -161,11 +181,15 @@ const useLetterStore = create<LetterStore>((set) => ({
         },
       });
       set((state) => ({
-        letterDetails: state.letterDetails.filter((item) => item.id !== id),
+        letterDetails:
+          state.letterDetails.id === id
+            ? ({} as LetterDetails)
+            : state.letterDetails,
         isLoading: false,
       }));
     } catch (error) {
       set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
     }
   },
 
@@ -178,13 +202,15 @@ const useLetterStore = create<LetterStore>((set) => ({
         },
       });
       set((state) => ({
-        letterDetails: state.letterDetails.map((item) =>
-          item.id === id ? { ...item, ...updatedData } : item
-        ),
+        letterDetails:
+          state.letterDetails.id === id
+            ? { ...state.letterDetails, ...updatedData }
+            : state.letterDetails,
         isLoading: false,
       }));
     } catch (error) {
       set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
     }
   },
 }));

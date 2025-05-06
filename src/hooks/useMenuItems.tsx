@@ -1,33 +1,46 @@
 import { MenuProps } from "antd";
+import { MenuDividerType } from "antd/es/menu/interface";
 import { FiUsers } from "react-icons/fi";
 import { GrHomeRounded } from "react-icons/gr";
 import { LuFolders } from "react-icons/lu";
 import { MdOutlineSettings } from "react-icons/md";
+import { TbFolderSymlink } from "react-icons/tb";
 
-type MenuItemType = Required<MenuProps>["items"][number];
+// Exclude null dari tipe bawaan
+type BaseMenuItemType = Omit<Exclude<NonNullable<MenuProps["items"]>[number], null | MenuDividerType>, "children"> & {
+  children?: BaseMenuItemType[];
+};
+
+interface CustomMenuItemType extends BaseMenuItemType {
+  allowedRoles?: number[]; // Tambahkan properti allowedRoles
+  children?: CustomMenuItemType[]; // Pastikan children kompatibel
+}
 
 function getListItems(
   label: React.ReactNode,
   key: React.Key,
   icon?: React.ReactNode,
-  children?: MenuItemType[]
-): MenuItemType {
+  allowedRoles?: number[],
+  children?: CustomMenuItemType[]
+): CustomMenuItemType {
   return {
     label,
     key,
     icon,
+    allowedRoles,
     children,
-  } as MenuItemType;
+  } as CustomMenuItemType;
 }
 
-const items: MenuItemType[] = [
-  getListItems("Dashboard", "/dashboard", <GrHomeRounded size={15} />),
-  getListItems("Arsip", "/arsip", <LuFolders size={15} />),
-  getListItems("Manajemen User", "/manajemen-user", <FiUsers size={15} />),
-  getListItems("Masterdata", "masterdata", <MdOutlineSettings size={15} />, [
-    getListItems("Kategori Surat", "/kategori-surat"),
-    getListItems("Jenis Surat", "/jenis-surat"),
-    getListItems("Kriteria Surat", "/kriteria-surat"),
+const items: CustomMenuItemType[] = [
+  getListItems("Dashboard", "/dashboard", <GrHomeRounded size={15} />, [1, 2, 3, 4]),
+  getListItems("Arsip", "/arsip", <LuFolders size={15} />, [1, 2, 3, 4]),
+  getListItems("Disposisi", "/disposisi", <TbFolderSymlink size={15} />, [1, 2, 3]),
+  getListItems("Manajemen User", "/manajemen-user", <FiUsers size={15} />, [1]),
+  getListItems("Masterdata", "masterdata", <MdOutlineSettings size={15} />, undefined, [
+    getListItems("Kategori Surat", "/kategori-surat", undefined, [1, 2, 3, 4]),
+    getListItems("Jenis Surat", "/jenis-surat", undefined, [1, 2, 3, 4]),
+    getListItems("Kriteria Surat", "/kriteria-surat", undefined, [1, 2, 3, 4]),
   ]),
 ];
 

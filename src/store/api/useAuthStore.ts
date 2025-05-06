@@ -20,6 +20,8 @@ interface AuthStore {
   checkAuth: () => void;
   isTokenExpired: () => boolean;
   clearIsLoggedIn: () => void;
+  getRole: () => number;
+  getUserId: () => string | null;
 }
 
 const useAuthStore = create<AuthStore>()(
@@ -53,9 +55,8 @@ const useAuthStore = create<AuthStore>()(
           });
           // localStorage.setItem("authToken", response.data.data);
         } catch (error) {
-          const errorMessage = getErrorMessage(error);
-          set({ error: errorMessage, isLoading: false });
-          throw new Error(errorMessage);
+          set({ error: getErrorMessage(error), isLoading: false });
+          throw new Error(getErrorMessage(error));
         }
       },
 
@@ -77,7 +78,7 @@ const useAuthStore = create<AuthStore>()(
 
           return currentTime >= expirationTime;
         } catch (error) {
-          console.error("Failed to decode token:", error);
+          set({ error: getErrorMessage(error), isLoading: false });
           return true;
         }
       },
@@ -94,6 +95,20 @@ const useAuthStore = create<AuthStore>()(
 
       // Clear isLoggedIn
       clearIsLoggedIn: () => set({ isLoggedIn: false }),
+
+      getRole: () => {
+        const decodedToken = get().decodedToken;
+        return decodedToken && decodedToken.role_id !== null
+          ? (decodedToken.role_id as number)
+          : -1; // Default value when role_id is null
+      },
+
+      getUserId: () => {
+        const decodedToken = get().decodedToken;
+        return decodedToken && decodedToken.user_id !== null
+          ? (decodedToken.id as string)
+          : null; // Default value when user_id is null
+      },
     }),
     {
       name: "authToken",

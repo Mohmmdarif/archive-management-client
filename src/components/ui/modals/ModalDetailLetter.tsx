@@ -99,7 +99,6 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
     fetchUserManagementData();
   }, [fetchTypeData, fetchCategoryData, fetchCriteriaData, fetchClassifierData, fetchUserManagementData]);
 
-  console.log("Data surat:", data);
   useEffect(() => {
     if (visible && data.length > 0 && userMe) {
       const entity = data[0].data.entities;
@@ -225,7 +224,7 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
             {
               data[0]?.data?.classification[0]?.Classify === "surat masuk" ? (
                 <Col span={12}>
-                  <Descriptions title="Informasi Umum" bordered column={1} size="small" labelStyle={{ width: "30%", fontWeight: "revert" }}>
+                  <Descriptions title="Informasi Umum" bordered column={1} size="small" labelStyle={{ width: "35%", fontWeight: "revert" }}>
                     <Descriptions.Item label="No. Agenda">
                       <Form.Item name="no_agenda" noStyle rules={[{ required: true, message: "No. Agenda wajib diisi" }]}>
                         <Input />
@@ -248,17 +247,17 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
               ) : null
             }
             <Col span={12}>
-              <Descriptions title="Detail User" bordered column={1} size="small" labelStyle={{ width: "35%", fontWeight: "revert" }}>
+              <Descriptions title="Detail User" bordered column={1} size="small" labelStyle={{ width: "40%", fontWeight: "revert" }}>
                 <Descriptions.Item label="Tgl. Diarsipkan">
                   <Form.Item name="created_at" noStyle rules={[{ required: true, message: "Tgl. Diarsipkan wajib diisi" }]}>
-                    <DatePicker format="DD MMMM YYYY" className="w-full" bordered={false} value={dayjs(form?.getFieldValue("created_at"))?.isValid()
+                    <DatePicker format="DD MMMM YYYY" className="w-full" variant="borderless" value={dayjs(form?.getFieldValue("created_at"))?.isValid()
                       ? dayjs(form?.getFieldValue("created_at")).format("DD MMMM YYYY")
                       : "-"} disabled />
                   </Form.Item>
                 </Descriptions.Item>
                 <Descriptions.Item label="Pengarsip">
                   <Form.Item name="pengarsip" noStyle rules={[{ required: true, message: "Pengarsip wajib diisi" }]}>
-                    <Input bordered={false} value={isLoading ? "-" : form?.getFieldValue("pengarsip")} readOnly />
+                    <Input variant="borderless" value={isLoading ? "-" : form?.getFieldValue("pengarsip")} readOnly />
                   </Form.Item>
                   {
 
@@ -353,12 +352,12 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
             }
             <Descriptions.Item label="File Path" className="hidden">
               <Form.Item name="path_file" noStyle>
-                <Input type="hidden" value={data[0]?.cloudinaryUrl} readOnly bordered={false} />
+                <Input type="hidden" value={data[0]?.cloudinaryUrl} readOnly variant="borderless" />
               </Form.Item>
             </Descriptions.Item>
             <Descriptions.Item label="File Name" className="hidden">
               <Form.Item name="filename" noStyle>
-                <Input type="hidden" value={data[0]?.publicId} readOnly bordered={false} />
+                <Input type="hidden" value={data[0]?.publicId} readOnly variant="borderless" />
               </Form.Item>
             </Descriptions.Item>
 

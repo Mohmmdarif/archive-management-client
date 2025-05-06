@@ -99,7 +99,7 @@ export default function LetterDetailsViewOnly({
               </Descriptions.Item>
 
               <Descriptions.Item label="Lampiran">
-                <span>{letterDetails.Surat_Masuk?.[0].jumlah_lampiran}</span>
+                <span>{letterDetails.Surat_Masuk?.[0].jumlah_lampiran === 0 ? "Tidak ada" : letterDetails.Surat_Masuk?.[0].jumlah_lampiran}</span>
               </Descriptions.Item>
             </Descriptions>
           </Col>

@@ -8,36 +8,55 @@ import ButtonIcon from "../buttons/ButtonIcon";
 
 import { IoLogOutOutline } from "react-icons/io5";
 import useAuthStore from "../../../store/api/useAuthStore";
+import { ItemType, MenuItemType } from "antd/es/menu/interface";
+import logo from "../../../assets/logo.webp";
 
 export default function SidebarContent() {
   const location = useLocation();
   const navigate = useNavigate();
   const { collapsed } = useCollapsible();
   const [selectedKey, setSelectedKey] = useState<string>(location.pathname);
-  const { logout } = useAuthStore();
+  const { logout, getRole } = useAuthStore();
+  const roleId = getRole();
 
   useEffect(() => {
     setSelectedKey(location.pathname);
   }, [location.pathname]);
 
+  const filteredItems = items
+    .filter((item) => {
+      if (item?.allowedRoles) {
+        return item.allowedRoles.includes(roleId);
+      }
+      return true;
+    })
+    .map((item) => ({
+      ...item,
+      children: item.children
+        ? item.children.filter((child) =>
+          child.allowedRoles ? child.allowedRoles.includes(roleId) : true
+        )
+        : undefined,
+    }));
+
   return (
     <>
-      <div className="p-4 self-center">
+      <div className="p-2 self-center mb-4">
         <img
-          src="https://logodix.com/logo/2003843.jpg"
+          src={logo}
           alt="logo"
           className="w-full"
         />
       </div>
-      {!collapsed && <p className="text-sm font-medium ml-5">Menu Utama</p>}
+      {!collapsed && <p className="text-sm font-medium ml-4">Menu Utama</p>}
 
       <Menu
         theme="light"
         mode="inline"
         selectedKeys={[selectedKey]}
         onClick={(e) => navigate(e.key)}
-        items={items}
-        style={{ fontSize: 16, marginTop: 3 }}
+        items={filteredItems as ItemType<MenuItemType>[]}
+        style={{ fontSize: 16 }}
       />
 
       {!collapsed && (

@@ -274,7 +274,7 @@ export default function ModalEditDetailLetter({
                     <DatePicker
                       format="DD MMMM YYYY"
                       className="w-full"
-                      bordered={false}
+                      variant="borderless"
                       value={
                         dayjs(form.getFieldValue("created_at"))?.isValid()
                           ? dayjs(form.getFieldValue("created_at")).format(
@@ -295,7 +295,7 @@ export default function ModalEditDetailLetter({
                     ]}
                   >
                     <Input
-                      bordered={false}
+                      variant="borderless"
                       value={form.getFieldValue("pengarsip")}
                       readOnly
                     />
@@ -449,7 +449,7 @@ export default function ModalEditDetailLetter({
                   type="hidden"
                   value={data?.path_file}
                   readOnly
-                  bordered={false}
+                  variant="borderless"
                 />
               </Form.Item>
             </Descriptions.Item>
@@ -459,7 +459,7 @@ export default function ModalEditDetailLetter({
                   type="hidden"
                   value={data?.filename}
                   readOnly
-                  bordered={false}
+                  variant="borderless"
                 />
               </Form.Item>
             </Descriptions.Item>

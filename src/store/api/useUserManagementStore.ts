@@ -60,6 +60,7 @@ const useUserManagementStore = create<UserManagementStore>((set) => ({
       });
     } catch (error) {
       set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
     }
   },
 
@@ -78,11 +79,8 @@ const useUserManagementStore = create<UserManagementStore>((set) => ({
         isLoading: false,
       });
     } catch (error) {
-      set({
-        error: getErrorMessage(error),
-        isLoading: false,
-      });
-      throw error;
+      set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
     }
   },
 
@@ -101,11 +99,8 @@ const useUserManagementStore = create<UserManagementStore>((set) => ({
         isLoading: false,
       }));
     } catch (error) {
-      set({
-        error: getErrorMessage(error),
-        isLoading: false,
-      });
-      throw error; // Lempar error untuk ditangkap di komponen
+      set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
     }
   },
 
@@ -125,6 +120,7 @@ const useUserManagementStore = create<UserManagementStore>((set) => ({
       }));
     } catch (error) {
       set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
     }
   },
 
@@ -141,6 +137,7 @@ const useUserManagementStore = create<UserManagementStore>((set) => ({
       }));
     } catch (error) {
       set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
     }
   },
 

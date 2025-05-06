@@ -1,22 +1,43 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import useUserManagementStore from "../../../store/api/useUserManagementStore";
 import useAuthStore from "../../../store/api/useAuthStore";
 import useNotify from "../../../hooks/useNotify";
-import { TbCircleDashedLetterM, TbCircleDashedLetterK, TbCircleDashedLetterD, TbTrash } from "react-icons/tb";
+import { TbCircleDashedLetterM, TbCircleDashedLetterK, TbCircleDashedLetterD } from "react-icons/tb";
 import SubHeader from "../headers/SubHeader";
-import Search from "../search/Search";
 import TableData from "../table/TableData";
 import { ColumnsType } from "antd/es/table";
-import { Badge, Space } from "antd";
-import ButtonIcon from "../buttons/ButtonIcon";
-import { BiEdit } from "react-icons/bi";
+import { Badge } from "antd";
+import useDashboardStore from "../../../store/api/useDashboardStore";
+import dayjs from "dayjs";
+import useClassifierStore from "../../../store/api/useClassifierStore";
 
+interface LetterDetails {
+  id: string;
+  tanggal_terima?: Date | null;
+  jumlah_lampiran?: number | null;
+  created_at: Date;
+  pengarsip: string; // User who archived the letter
+  no_surat: string;
+  tanggal_surat: Date | null;
+  id_type_surat: number;
+  perihal_surat: string;
+  id_kategori_surat: number;
+  id_kriteria_surat: number;
+  id_jenis_surat: number;
+  pengirim_surat: string;
+  penerima_surat: string; // penerima surat (text)
+  filename: string;
+  path_file: string;
+}
 
 export default function DashboardContainer() {
   const hasShownNotification = useRef(false);
   const { notify, contextHolder } = useNotify();
-  const { isLoggedIn, clearIsLoggedIn } = useAuthStore();
+  const { isLoggedIn, clearIsLoggedIn, getUserId } = useAuthStore();
   const { userMe, fetchUserManagementDataById } = useUserManagementStore();
+  const { classifierData, fetchClassifierData } = useClassifierStore();
+  const { letterData, countDataSuratMasuk, countDataSuratKeluar, countDataDisposisi, fetchCountSuratKeluar, fetchCountSuratMasuk, fetchCountDisposisi, fetchLetterData } = useDashboardStore();
+  const userId = getUserId();
 
   // show notification when isLoggedIn
   useEffect(() => {
@@ -24,8 +45,8 @@ export default function DashboardContainer() {
       hasShownNotification.current = true;
       notify({
         type: "success",
-        notifyTitle: "Login success",
-        notifyContent: "You have successfully logged in.",
+        notifyTitle: "Login Berhasil!",
+        notifyContent: "Kamu berhasil login ke dalam sistem",
       });
 
       clearIsLoggedIn();
@@ -33,123 +54,113 @@ export default function DashboardContainer() {
   }, [isLoggedIn]);
 
   useEffect(() => {
+    if (userId) {
+      fetchCountDisposisi(userId);
+    }
+  }, [userId, fetchCountDisposisi]);
+
+  useEffect(() => {
     fetchUserManagementDataById();
-  }, [fetchUserManagementDataById]);
+    fetchCountSuratMasuk();
+    fetchCountSuratKeluar();
+    fetchLetterData();
+    fetchClassifierData();
+  }, [fetchUserManagementDataById, fetchCountSuratMasuk, fetchCountSuratKeluar, fetchLetterData, fetchClassifierData]);
 
   const datas = [
     {
       title: "Surat Masuk",
-      count: 100,
+      count: countDataSuratMasuk,
       icon: <TbCircleDashedLetterM size={60} />,
     },
     {
       title: "Surat Keluar",
-      count: 50,
+      count: countDataSuratKeluar,
       icon: <TbCircleDashedLetterK size={60} />,
     },
     {
       title: "Surat Disposisi",
-      count: 20,
+      count: countDataDisposisi,
       icon: <TbCircleDashedLetterD size={60} />,
     }
   ];
 
-  interface SuratData {
-    key: React.Key;
-    no: number;
-    noSurat: string;
-    tanggalSurat: string;
-    pengirim: string;
-    perihal: string;
-    tipeSurat: string;
-    status: string;
-  }
+  const processedData = useMemo(() => {
+    return letterData.map((item, index) => ({
+      ...item,
+      key: index,
+      no: index + 1,
+    }));
+  }, [letterData]);
 
-  const dataSource: SuratData[] = [
-    {
-      key: "1",
-      no: 1,
-      noSurat: "001/UN7.7/PP/2021",
-      tanggalSurat: "2021-08-03",
-      pengirim: "Dekan FIK",
-      perihal: "Pengajuan Proposal PKM",
-      tipeSurat: "Surat Masuk",
-      status: "Diterima",
-    },
-    {
-      key: "1",
-      no: 1,
-      noSurat: "001/UN7.7/PP/2021",
-      tanggalSurat: "2021-08-03",
-      pengirim: "Dekan FIK",
-      perihal: "Pengajuan Proposal PKM",
-      tipeSurat: "Surat Masuk",
-      status: "Diterima",
-    },
-
-  ];
-
-  const columns: ColumnsType<SuratData> = [
+  const columns: ColumnsType<LetterDetails> = useMemo(() => [
     {
       title: "No",
       dataIndex: "no",
       key: "no",
+      width: 80,
+      align: "center",
     },
     {
       title: "No Surat",
-      dataIndex: "noSurat",
-      key: "noSurat",
-    },
-    {
-      title: "Tanggal Surat",
-      dataIndex: "tanggalSurat",
-      key: "tanggalSurat",
-    },
-    {
-      title: "Pengirim",
-      dataIndex: "pengirim",
-      key: "pengirim",
+      dataIndex: "no_surat",
+      key: "no_surat",
     },
     {
       title: "Perihal",
-      dataIndex: "perihal",
-      key: "perihal",
+      dataIndex: "perihal_surat",
+      key: "perihal_surat",
+      width: 300,
+      render: (text) => <span className="text-ellipsis line-clamp-1">{text}</span>,
     },
     {
-      title: "Tipe Surat",
-      dataIndex: "tipeSurat",
-      key: "tipeSurat",
+      title: "Tanggal Surat",
+      dataIndex: "tanggal_surat",
+      key: "tanggal_surat",
+      render: (tanggal) =>
+        tanggal ? dayjs(tanggal).format("DD MMMM YYYY") : "-",
     },
     {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: () => {
-        return <Badge status="success" text="Diterima" />;
-      },
+      title: "Pengirim",
+      dataIndex: "pengirim_surat",
+      key: "pengirim_surat",
     },
     {
-      title: "Action",
-      dataIndex: "action",
-      key: "action",
-      render: () => {
+      title: "Penerima",
+      dataIndex: "penerima_surat",
+      key: "penerima_surat",
+      width: 200,
+      render: (text) => <span className="text-ellipsis line-clamp-1">{text}</span>,
+    },
+    {
+      title: "Jenis Surat",
+      dataIndex: "id_type_surat",
+      key: "id_type_surat",
+      render: (id) => {
+        const type = classifierData.find((item) => item.id === id);
         return (
-          <Space size="small">
-            <ButtonIcon
-              tooltipTitle="Edit"
-              icon={<BiEdit />}
-              onClick={() => console.log("Edit")}
-            />
-            <ButtonIcon
-              tooltipTitle="Delete"
-              icon={<TbTrash />}
-              onClick={() => console.log("Delete")}
-            />
-          </Space>
+          <Badge
+            color={type?.id === 1 ? "blue" : "green"}
+            text={type?.nama_type}
+            style={{ textTransform: "capitalize" }}
+          />
         );
       },
     },
-  ];
+    {
+      title: "Pengarsip",
+      dataIndex: "pengarsip",
+      key: "pengarsip",
+    },
+    {
+      title: "Tanggal Diarsipkan",
+      dataIndex: "created_at",
+      key: "created_at",
+      render: (tanggal) =>
+        tanggal ? dayjs(tanggal).format("DD MMMM YYYY") : "-",
+    },
+
+  ], [classifierData]);
 
   return (
     <section className="h-full">
@@ -169,7 +180,7 @@ export default function DashboardContainer() {
               <div className="flex flex-col justify-between h-full">
                 <span className="font-semibold text-lg md:text-xl">{data.title}</span>
                 <div className="flex items-center justify-between">
-                  <span className="text-4xl md:text-5xl font-bold">{data.count}</span>
+                  <span className="text-4xl md:text-5xl font-bold">{data.count ?? 0}</span>
                   <div className="bg-blue-500 text-white p-3 rounded-lg">
                     {data.icon}
                   </div>
@@ -185,12 +196,12 @@ export default function DashboardContainer() {
           {/* Sub Header */}
           <SubHeader subHeaderTitle="Data Surat Hari Ini" />
 
-          {/* Search */}
-          <Search />
-
           {/* Table Data */}
           <div className="mt-5">
-            <TableData dataSource={dataSource} columns={columns} />
+            <TableData<LetterDetails>
+              dataSource={processedData}
+              columns={columns}
+            />
           </div>
         </div>
       </section>

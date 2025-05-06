@@ -23,6 +23,7 @@ import DefaultModal from "../modals/DefaultModal";
 // Icons
 import { BiEdit, BiPlus } from "react-icons/bi";
 import { TbTrash } from "react-icons/tb";
+import useAuthStore from "../../../store/api/useAuthStore";
 
 interface TypeData {
   key: React.Key;
@@ -39,6 +40,8 @@ export default function TypeContainer() {
     useTypeStore();
   const { isModalOpen, closeModal, openModal } = useModalStore();
   const [editingData, setEditingData] = useState<TypeData | null>(null);
+  const getRole = useAuthStore((state) => state.getRole);
+  const roleId = getRole();
 
   useEffect(() => {
     fetchTypeData();
@@ -132,7 +135,10 @@ export default function TypeContainer() {
       dataIndex: "keterangan",
       key: "keterangan",
     },
-    {
+  ];
+
+  if (![3, 4].includes(roleId)) {
+    columns.push({
       title: "Action",
       dataIndex: "action",
       key: "action",
@@ -156,10 +162,11 @@ export default function TypeContainer() {
         );
       },
     },
-  ];
+    );
+  }
 
   return (
-    <section className="bg-white w-full h-full p-5 rounded-lg overflow-x-auto">
+    <section className="bg-white w-full h-full p-5 rounded-lg">
       {/* Notify Context */}
       {contextHolder}
 
@@ -175,23 +182,31 @@ export default function TypeContainer() {
       >
         <Search />
 
-        <ButtonIcon
-          type="primary"
-          icon={<BiPlus />}
-          onClick={handleAdd}
-          size="middle"
-          shape="default"
-        >
-          Tambah
-        </ButtonIcon>
+        {
+          roleId === 1 || roleId === 2 ? (
+            <ButtonIcon
+              type="primary"
+              icon={<BiPlus />}
+              onClick={handleAdd}
+              size="middle"
+              shape="default"
+            >
+              Tambah
+            </ButtonIcon>
+          ) : null
+        }
       </Flex>
 
       {/* Table Data */}
-      <TableData<TypeData>
-        key={typeData.length}
-        dataSource={(filteredData as TypeData[]) || []}
-        columns={columns}
-      />
+      <div className="overflow-y-auto max-h-full" style={{
+        maxHeight: "calc(100vh - 250px)",
+      }}>
+        <TableData<TypeData>
+          key={typeData.length}
+          dataSource={(filteredData as TypeData[]) || []}
+          columns={columns}
+        />
+      </div>
 
       {/* Modal Form */}
       <DefaultModal

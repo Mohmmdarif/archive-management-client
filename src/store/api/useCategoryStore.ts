@@ -41,6 +41,7 @@ const useCategoryStore = create<CategoryStore>((set) => ({
       });
     } catch (error) {
       set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
     }
   },
 
@@ -55,6 +56,7 @@ const useCategoryStore = create<CategoryStore>((set) => ({
       }));
     } catch (error) {
       set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
     }
   },
 
@@ -71,6 +73,7 @@ const useCategoryStore = create<CategoryStore>((set) => ({
       }));
     } catch (error) {
       set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
     }
   },
 
@@ -85,6 +88,7 @@ const useCategoryStore = create<CategoryStore>((set) => ({
       }));
     } catch (error) {
       set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
     }
   },
 }));

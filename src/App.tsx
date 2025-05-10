@@ -38,7 +38,9 @@ const router = createBrowserRouter([
         path: "/dashboard",
         element: (
           <Suspense fallback={<Loading />}>
-            <Dashboard />
+            <RoleGuard allowedRoles={[1, 2, 3, 4, 5]}>
+              <Dashboard />
+            </RoleGuard>
           </Suspense>
         ),
       },
@@ -46,7 +48,9 @@ const router = createBrowserRouter([
         path: "/arsip",
         element: (
           <Suspense fallback={<Loading />}>
-            <Archive />
+            <RoleGuard allowedRoles={[1, 2, 3, 4, 5]}>
+              <Archive />
+            </RoleGuard>
           </Suspense>
         ),
       },
@@ -54,7 +58,9 @@ const router = createBrowserRouter([
         path: "/arsip/disposisi/:id",
         element: (
           <Suspense fallback={<Loading />}>
-            <DisposisiDetail />
+            <RoleGuard allowedRoles={[1, 2, 3, 5]}>
+              <DisposisiDetail />
+            </RoleGuard>
           </Suspense>
         ),
       },
@@ -62,7 +68,9 @@ const router = createBrowserRouter([
         path: "/disposisi",
         element: (
           <Suspense fallback={<Loading />}>
-            <Disposisi />
+            <RoleGuard allowedRoles={[1, 2, 3, 5]}>
+              <Disposisi />
+            </RoleGuard>
           </Suspense>
         )
       },
@@ -80,7 +88,9 @@ const router = createBrowserRouter([
         path: "/kategori-surat",
         element: (
           <Suspense fallback={<Loading />}>
-            <Category />
+            <RoleGuard allowedRoles={[1, 2, 3, 4]}>
+              <Category />
+            </RoleGuard>
           </Suspense>
         ),
       },
@@ -88,7 +98,9 @@ const router = createBrowserRouter([
         path: "/jenis-surat",
         element: (
           <Suspense fallback={<Loading />}>
-            <Type />
+            <RoleGuard allowedRoles={[1, 2, 3, 4]}>
+              <Type />
+            </RoleGuard>
           </Suspense>
         ),
       },
@@ -96,7 +108,9 @@ const router = createBrowserRouter([
         path: "/kriteria-surat",
         element: (
           <Suspense fallback={<Loading />}>
-            <Criteria />
+            <RoleGuard allowedRoles={[1, 2, 3, 4]}>
+              <Criteria />
+            </RoleGuard>
           </Suspense>
         ),
       },

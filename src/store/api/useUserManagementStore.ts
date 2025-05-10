@@ -53,7 +53,12 @@ const useUserManagementStore = create<UserManagementStore>((set) => ({
     });
 
     try {
-      const response = await axiosInstance.get("/users");
+      const response = await axiosInstance.get("/users", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
       set({
         userManagementData: response.data.data || [],
         isLoading: false,
@@ -71,6 +76,7 @@ const useUserManagementStore = create<UserManagementStore>((set) => ({
     try {
       const response = await axiosInstance.get("/users/me", {
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${getToken()}`,
         },
       });
@@ -111,7 +117,12 @@ const useUserManagementStore = create<UserManagementStore>((set) => ({
   ) => {
     set({ isLoading: true, error: null });
     try {
-      await axiosInstance.put(`/users/${id}`, updatedData);
+      await axiosInstance.put(`/users/${id}`, updatedData, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
       set((state) => ({
         userManagementData: state.userManagementData.map((data) =>
           data.id === id ? { ...data, ...updatedData } : data
@@ -128,7 +139,12 @@ const useUserManagementStore = create<UserManagementStore>((set) => ({
   deleteData: async (id: string) => {
     set({ isLoading: true, error: null });
     try {
-      await axiosInstance.delete(`/users/${id}`);
+      await axiosInstance.delete(`/users/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
       set((state) => ({
         userManagementData: state.userManagementData.filter(
           (data) => data.id !== id

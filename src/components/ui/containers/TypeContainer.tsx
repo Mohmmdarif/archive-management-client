@@ -137,7 +137,7 @@ export default function TypeContainer() {
     },
   ];
 
-  if (![3, 4].includes(roleId)) {
+  if (![2, 3, 4].includes(roleId)) {
     columns.push({
       title: "Action",
       dataIndex: "action",
@@ -183,7 +183,7 @@ export default function TypeContainer() {
         <Search />
 
         {
-          roleId === 1 || roleId === 2 ? (
+          roleId === 1 ? (
             <ButtonIcon
               type="primary"
               icon={<BiPlus />}

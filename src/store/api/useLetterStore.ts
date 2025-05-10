@@ -90,7 +90,12 @@ const useLetterStore = create<LetterStore>((set) => ({
   fetchSuratData: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axiosInstance.get("/surat/letters");
+      const response = await axiosInstance.get("/surat/letters", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
       const { data } = response.data;
       set({ letterDetails: data || {}, isLoading: false });
     } catch (error) {
@@ -104,6 +109,7 @@ const useLetterStore = create<LetterStore>((set) => ({
     try {
       const response = await axiosInstance.get(`/surat/letters/${id}`, {
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${getToken()}`,
         },
       });
@@ -130,14 +136,14 @@ const useLetterStore = create<LetterStore>((set) => ({
       const response = await axiosInstance.post("/surat/single", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${getToken()}`,
         },
       });
 
       const { cloudinaryUrl, publicId, data } = response.data.data;
       const { classification, entities, text } = data;
-      set((state) => ({
+      set(() => ({
         letterData: [
-          ...state.letterData,
           {
             cloudinaryUrl,
             publicId,
@@ -159,9 +165,18 @@ const useLetterStore = create<LetterStore>((set) => ({
   savedConfirmedData: async (payload: LetterDetails) => {
     set({ isLoading: true, error: null });
     try {
-      await axiosInstance.post("/surat/save", {
-        data: payload,
-      });
+      await axiosInstance.post(
+        "/surat/save",
+        {
+          data: payload,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
+      );
       set((state) => ({
         letterDetails: state.letterDetails,
         isLoading: false,
@@ -177,6 +192,7 @@ const useLetterStore = create<LetterStore>((set) => ({
     try {
       await axiosInstance.delete(`/surat/${id}`, {
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${getToken()}`,
         },
       });
@@ -198,6 +214,7 @@ const useLetterStore = create<LetterStore>((set) => ({
     try {
       await axiosInstance.put(`/surat/${id}`, updatedData, {
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${getToken()}`,
         },
       });

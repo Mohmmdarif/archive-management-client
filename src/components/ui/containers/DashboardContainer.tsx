@@ -33,11 +33,12 @@ interface LetterDetails {
 export default function DashboardContainer() {
   const hasShownNotification = useRef(false);
   const { notify, contextHolder } = useNotify();
-  const { isLoggedIn, clearIsLoggedIn, getUserId } = useAuthStore();
+  const { isLoggedIn, clearIsLoggedIn, getUserId, getRole } = useAuthStore();
   const { userMe, fetchUserManagementDataById } = useUserManagementStore();
   const { classifierData, fetchClassifierData } = useClassifierStore();
   const { letterData, countDataSuratMasuk, countDataSuratKeluar, countDataDisposisi, fetchCountSuratKeluar, fetchCountSuratMasuk, fetchCountDisposisi, fetchLetterData } = useDashboardStore();
   const userId = getUserId();
+  const roleId = getRole();
 
   // show notification when isLoggedIn
   useEffect(() => {
@@ -72,16 +73,19 @@ export default function DashboardContainer() {
       title: "Surat Masuk",
       count: countDataSuratMasuk,
       icon: <TbCircleDashedLetterM size={60} />,
+      rolesAllowed: [1, 2, 3, 4, 5],
     },
     {
       title: "Surat Keluar",
       count: countDataSuratKeluar,
       icon: <TbCircleDashedLetterK size={60} />,
+      rolesAllowed: [1, 2, 3, 4, 5],
     },
     {
       title: "Surat Disposisi",
       count: countDataDisposisi,
       icon: <TbCircleDashedLetterD size={60} />,
+      rolesAllowed: [1, 3, 5],
     }
   ];
 
@@ -174,9 +178,9 @@ export default function DashboardContainer() {
 
       <section className="h-full">
         {/* Dashboard View Data Surat */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+        <div className={`grid grid-cols-1  gap-4 mt-4 ${[2, 4].includes(roleId) ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
           {datas.map((data, index) => (
-            <div className="bg-white shadow-xs h-36 rounded-lg p-5" key={index}>
+            <div className={`bg-white shadow-xs h-36 rounded-lg p-5 ${data.rolesAllowed?.includes(roleId) ? "" : "hidden"}`} key={index}>
               <div className="flex flex-col justify-between h-full">
                 <span className="font-semibold text-lg md:text-xl">{data.title}</span>
                 <div className="flex items-center justify-between">
@@ -191,13 +195,17 @@ export default function DashboardContainer() {
         </div>
 
         {/* Data Surat hari ini */}
-        <div className="bg-white w-full h-full mt-5 p-5 rounded-lg">
+        <div className="bg-white w-full h-full flex flex-col p-5 rounded-lg mt-5">
 
           {/* Sub Header */}
           <SubHeader subHeaderTitle="Data Surat Hari Ini" />
 
           {/* Table Data */}
-          <div className="mt-5">
+          <div className="overflow-y-auto flex-grow mt-5"
+            style={{
+              maxHeight: "calc(100vh - 250px)",
+            }}
+          >
             <TableData<LetterDetails>
               dataSource={processedData}
               columns={columns}

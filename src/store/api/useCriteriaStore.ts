@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { axiosInstance } from "../../libs/axios";
 import { getErrorMessage } from "../../libs/utils/errorHandler";
+import useAuthStore from "./useAuthStore";
 
 interface CriteriaData {
   id?: number;
@@ -21,6 +22,8 @@ interface CriteriaStore {
   deleteData: (id: number) => Promise<void>;
 }
 
+const getToken = () => useAuthStore.getState().token;
+
 const useCriteriaStore = create<CriteriaStore>((set) => ({
   criteriaData: [],
   isLoading: false,
@@ -34,7 +37,12 @@ const useCriteriaStore = create<CriteriaStore>((set) => ({
     });
 
     try {
-      const response = await axiosInstance.get("/criterias");
+      const response = await axiosInstance.get("/criterias", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
       set({
         criteriaData: response.data.data || [],
         isLoading: false,
@@ -49,7 +57,12 @@ const useCriteriaStore = create<CriteriaStore>((set) => ({
   addData: async (newData) => {
     set({ isLoading: true, error: null });
     try {
-      await axiosInstance.post("/criterias/create", newData);
+      await axiosInstance.post("/criterias/create", newData, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
       set((state) => ({
         criteriaData: [...state.criteriaData, newData],
         isLoading: false,
@@ -64,7 +77,12 @@ const useCriteriaStore = create<CriteriaStore>((set) => ({
   updateData: async (id, updatedData) => {
     set({ isLoading: true, error: null });
     try {
-      await axiosInstance.put(`/criterias/${id}`, updatedData);
+      await axiosInstance.put(`/criterias/${id}`, updatedData, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
       set((state) => ({
         criteriaData: state.criteriaData.map((data) =>
           data.id === id ? { ...data, ...updatedData } : data
@@ -81,7 +99,12 @@ const useCriteriaStore = create<CriteriaStore>((set) => ({
   deleteData: async (id) => {
     set({ isLoading: true, error: null });
     try {
-      await axiosInstance.delete(`/criterias/${id}`);
+      await axiosInstance.delete(`/criterias/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
       set((state) => ({
         criteriaData: state.criteriaData.filter((data) => data.id !== id),
         isLoading: false,

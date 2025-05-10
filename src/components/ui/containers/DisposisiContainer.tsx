@@ -52,7 +52,7 @@ export default function Disposisi() {
         align: "center",
       },
       {
-        title: "Tanggal Terima",
+        title: "Tanggal Terima Surat",
         dataIndex: "tanggal_terima",
         key: "tanggal_terima",
         render: (tanggal_terima) =>
@@ -82,13 +82,12 @@ export default function Disposisi() {
         dataIndex: "pesan_disposisi",
         key: "pesan_disposisi",
         render: (_, record) => {
-          console.log(record);
           // Ambil disposisi terakhir dari record
           const lastDisposisi = record.disposisi?.[record.disposisi.length - 1];
           const text = lastDisposisi?.pesan_disposisi || "Tidak ada pesan";
 
           return (
-            <span className="text-ellipsis line-clamp-1">{text}</span>
+            <span className="text-ellipsis line-clamp-1 capitalize">{text}</span>
           );
         },
       },
@@ -144,9 +143,9 @@ export default function Disposisi() {
   );
 
   return (
-    <section className="bg-white w-full h-full p-5 rounded-lg">
+    <section className="bg-white w-full h-full flex flex-col p-5 rounded-lg relative">
       <h1 className="text-2xl font-bold">Disposisi</h1>
-      <div className="overflow-y-auto max-h-full">
+      <div className="overflow-y-auto flex-grow">
         <TableData<SuratDisposisi>
           dataSource={suratDisposisiByPenerima} // Gunakan data yang sudah difilter
           columns={columns}

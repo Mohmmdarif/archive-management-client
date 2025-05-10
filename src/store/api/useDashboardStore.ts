@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { axiosInstance } from "../../libs/axios";
 import { getErrorMessage } from "../../libs/utils/errorHandler";
+import useAuthStore from "./useAuthStore";
 
 interface LetterDetails {
   id: string;
@@ -34,6 +35,8 @@ interface DashboardStore {
   fetchLetterData: () => Promise<void>;
 }
 
+const getToken = () => useAuthStore.getState().token;
+
 const useDashboardStore = create<DashboardStore>((set) => ({
   countDataSuratMasuk: 0,
   countDataSuratKeluar: 0,
@@ -50,7 +53,12 @@ const useDashboardStore = create<DashboardStore>((set) => ({
     });
 
     try {
-      const response = await axiosInstance.get("/dashboard/suratmasuk/count");
+      const response = await axiosInstance.get("/dashboard/suratmasuk/count", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
       set({
         countDataSuratMasuk: response.data.data,
         isLoading: false,
@@ -67,7 +75,12 @@ const useDashboardStore = create<DashboardStore>((set) => ({
     });
 
     try {
-      const response = await axiosInstance.get("/dashboard/suratkeluar/count");
+      const response = await axiosInstance.get("/dashboard/suratkeluar/count", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
       set({
         countDataSuratKeluar: response.data.data,
         isLoading: false,
@@ -85,7 +98,13 @@ const useDashboardStore = create<DashboardStore>((set) => ({
 
     try {
       const response = await axiosInstance.get(
-        `/dashboard/suratdisposisi/count/${idUser}`
+        `/dashboard/suratdisposisi/count/${idUser}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
       );
       set({
         countDataDisposisi: response.data.data,
@@ -103,7 +122,12 @@ const useDashboardStore = create<DashboardStore>((set) => ({
     });
 
     try {
-      const response = await axiosInstance.get("/dashboard/surat/today");
+      const response = await axiosInstance.get("/dashboard/surat/today", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
       set({
         letterData: response.data.data || [],
         isLoading: false,

@@ -1,5 +1,5 @@
 import { Modal, Row, Col, Descriptions, Button, Space, Input, DatePicker, Select, Form } from "antd";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { IoEyeOutline } from "react-icons/io5";
 import { MdOutlineFileDownload } from "react-icons/md";
 import dayjs from "dayjs";
@@ -60,7 +60,7 @@ export interface LetterDetails {
   pengarsip: string; // User who archived the letter
   no_surat: string;
   tanggal_surat: Date | null;
-  id_type_surat: number;
+  classification: number | string;
   perihal_surat: string;
   id_kategori_surat: number;
   id_kriteria_surat: number;
@@ -79,6 +79,13 @@ interface DetailSuratProps {
   data: LetterData[];
 }
 
+const labelMapping = {
+  1: "surat masuk",
+  2: "surat keluar",
+  "surat masuk": 1,
+  "surat keluar": 2,
+};
+
 export default function ModalDetailLetter({ visible, onClose, data }: DetailSuratProps) {
   const [form] = useForm();
   const { notify, contextHolder } = useNotify();
@@ -89,7 +96,10 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
   const { savedConfirmedData, fetchSuratData } = useLetterStore();
   const { userMe, isLoading, fetchUserManagementData } =
     useUserManagementStore();
-  // const { filename, file_path } = extractFilePathParts(data[0]?.filePath || "");
+  const [classification, setClassification] = useState<string | number>(
+    data[0]?.data?.classification[0]?.Classify
+  );
+
 
   useEffect(() => {
     fetchTypeData();
@@ -101,8 +111,12 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
 
   useEffect(() => {
     if (visible && data.length > 0 && userMe) {
+      console.log("data", data);
       const entity = data[0].data.entities;
       const classification = data[0].data.classification[0];
+      const mappedClassification = labelMapping[classification?.Classify as keyof typeof labelMapping];
+
+      form.resetFields();
 
       form.setFieldsValue({
         no_agenda: null,
@@ -112,7 +126,7 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
         pengarsip: userMe.nama_lengkap,
         no_surat: entity.find((e) => e.label === "NOMOR_SURAT")?.text ?? "",
         tanggal_surat: entity.find((e) => e.label === "TANGGAL_SURAT")?.text ? dayjs(entity.find((e) => e.label === "TANGGAL_SURAT")?.text) : null,
-        id_type_surat: classifierData.find((type) => type.nama_type.toLowerCase() === classification?.Classify)?.id ?? "",
+        classification: mappedClassification ?? "",
         perihal_surat: entity.find((e) => e.label === "PERIHAL")?.text ?? "",
         id_kategori_surat: "",
         id_kriteria_surat: criteriaData.find((criteria) => criteria.nama_kriteria.toLowerCase() === classification?.Criteria)?.id ?? "",
@@ -123,12 +137,44 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
         path_file: data[0].cloudinaryUrl,
         tanggal_kirim: dayjs(),
       });
+      setClassification(mappedClassification ?? "");
     }
   }, [visible, data, form, classifierData, criteriaData, typeData, fetchUserManagementData, userMe]);
 
+  const handleValuesChange = (changedValues: Partial<Record<string, unknown>>) => {
+    if (changedValues.classification) {
+      const newClassification = changedValues.classification as string | number;
+
+      // Perbarui state classification menggunakan mapping
+      setClassification(labelMapping[newClassification as keyof typeof labelMapping]);
+
+      // Reset atau sembunyikan input tertentu berdasarkan classification
+      if (labelMapping[newClassification as keyof typeof labelMapping] === "surat masuk") {
+        form.setFieldsValue({
+          tanggal_kirim: null, // Reset Tgl. Kirim Surat jika classification adalah "surat masuk"
+        });
+      } else if (labelMapping[newClassification as keyof typeof labelMapping] === "surat keluar") {
+        form.setFieldsValue({
+          no_agenda: null, // Reset No. Agenda jika classification adalah "surat keluar"
+          tanggal_terima: null,
+          jumlah_lampiran: null,
+        });
+      }
+    }
+  };
+
   const handleSave = async (values: LetterDetails) => {
     try {
-      await savedConfirmedData(values);
+      const idTypeSurat = typeof values.classification === "number"
+        ? values.classification // Jika sudah number, gunakan langsung
+        : labelMapping[values.classification as keyof typeof labelMapping];
+
+      const payload = {
+        ...values,
+        id_type_surat: Number(idTypeSurat), // Ensure id_type_surat is a number
+      };
+
+      await savedConfirmedData(payload);
       await fetchSuratData();
 
       notify({
@@ -172,15 +218,6 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
     }
   };
 
-  // function extractFilePathParts(filePath: string): { filename: string; file_path: string } {
-  //   if (!filePath) return { filename: "", file_path: "" };
-
-  //   const parts = filePath.split("/");
-  //   const filename = parts.pop() ?? "";
-  //   const file_path = parts.join("/") + "/";
-
-  //   return { filename, file_path };
-  // }
 
   const handleCancelModal = () => {
     Modal.confirm({
@@ -190,6 +227,7 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
       cancelText: "Tidak",
       onOk: () => {
         form.resetFields();
+        setClassification("");
         onClose();
       },
     });
@@ -219,10 +257,11 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
           layout="vertical"
           onFinish={handleSave}
           form={form}
+          onValuesChange={handleValuesChange}
         >
           <Row gutter={16} className="my-4">
             {
-              data[0]?.data?.classification[0]?.Classify === "surat masuk" ? (
+              classification === 1 || classification === "surat masuk" ? (
                 <Col span={12}>
                   <Descriptions title="Informasi Umum" bordered column={1} size="small" labelStyle={{ width: "35%", fontWeight: "revert" }}>
                     <Descriptions.Item label="No. Agenda">
@@ -279,7 +318,7 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
               </Form.Item>
             </Descriptions.Item>
             <Descriptions.Item label="Tipe Surat">
-              <Form.Item name="id_type_surat" noStyle rules={[{ required: true, message: "Tipe Surat wajib diisi" }]}>
+              <Form.Item name="classification" noStyle rules={[{ required: true, message: "Tipe Surat wajib diisi" }]}>
                 <Select className="w-full capitalize">
                   {classifierData.map((type) => (
                     <Option key={type.id} value={type.id}>
@@ -317,7 +356,7 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
               </Form.Item>
             </Descriptions.Item>
             {
-              data[0]?.data?.classification[0]?.Classify === "surat masuk" ? (
+              classification === 1 || classification === "surat masuk" ? (
                 <Descriptions.Item label="Kategori Surat">
                   <Form.Item name="id_kategori_surat" noStyle rules={[{ required: true, message: "Kategori Surat wajib diisi" }]}>
                     <Select className="w-full">
@@ -342,7 +381,7 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
               </Form.Item>
             </Descriptions.Item>
             {
-              data[0]?.data?.classification[0]?.Classify === "surat keluar" ? (
+              classification === 2 || classification === "surat keluar" ? (
                 <Descriptions.Item label="Tgl. Kirim Surat">
                   <Form.Item name="tanggal_kirim" noStyle rules={[{ required: true, message: "Tgl. Kirim Surat wajib diisi" }]}>
                     <DatePicker format="DD MMMM YYYY" className="w-full" />

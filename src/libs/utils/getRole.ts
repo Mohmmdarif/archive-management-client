@@ -8,6 +8,8 @@ export const getRole = (roleId: number) => {
       return "Arsiparis Surat Masuk";
     case 4:
       return "Arsiparis Surat Keluar";
+    case 5:
+      return "User General";
     default:
       return "User Unknown";
   }

@@ -1,4 +1,4 @@
-import { Badge, Flex, Modal, Space, Tag } from "antd";
+import { Alert, Badge, Flex, Modal, Space, Tag } from "antd";
 
 import TableData from "../table/TableData";
 import ButtonIcon from "../buttons/ButtonIcon";
@@ -20,6 +20,7 @@ import useSearchStore from "../../../store/useSearch";
 import { getRole } from "../../../libs/utils/getRole";
 import useNotify from "../../../hooks/useNotify";
 import { getErrorMessage } from "../../../libs/utils/errorHandler";
+import useAuthStore from "../../../store/api/useAuthStore";
 
 interface UserData {
   key: React.Key;
@@ -43,6 +44,8 @@ export default function UserManagementContainer() {
   const { notify, contextHolder } = useNotify();
   const { searchQuery } = useSearchStore();
   const { isModalOpen, openModal, closeModal } = useModalStore();
+  const { getRole: currentUserRoleId } = useAuthStore();
+  const roleId = currentUserRoleId();
   const {
     userManagementData,
     fetchUserManagementData,
@@ -66,6 +69,9 @@ export default function UserManagementContainer() {
   }, [error, clearError]);
 
   const users = transformData(userManagementData);
+
+  // Filter pengguna tanpa jabatan
+  const usersWithoutJabatan = users.filter((user) => !user.jabatan);
 
   const filteredData = filterData(users, searchQuery, ["nip", "nama_lengkap"]);
 
@@ -135,6 +141,7 @@ export default function UserManagementContainer() {
         { label: "Pimpinan", value: 2 },
         { label: "Arsiparis Surat Masuk", value: 3 },
         { label: "Arsiparis Surat Keluar", value: 4 },
+        { label: "User General", value: 5 },
       ],
     },
   ];
@@ -191,6 +198,7 @@ export default function UserManagementContainer() {
         { label: "Pimpinan", value: 2 },
         { label: "Arsiparis Surat Masuk", value: 3 },
         { label: "Arsiparis Surat Keluar", value: 4 },
+        { label: "User General", value: 5 },
       ],
     },
   ];
@@ -367,21 +375,35 @@ export default function UserManagementContainer() {
   };
 
   return (
-    <section className="bg-white w-full h-auto p-5 rounded-lg">
+    <section className="bg-white w-full h-full flex flex-col p-5 rounded-lg">
       {/* Notification Context */}
       {contextHolder}
 
       {/* Sub Header */}
       <SubHeader subHeaderTitle="Data Pengguna" />
 
+      {/* Alert jika ada pengguna tanpa jabatan */}
+      {usersWithoutJabatan.length > 0 && roleId === 1 && (
+        <Alert
+          message="Perhatian"
+          description="Koordinator TU wajib mengisikan field jabatan untuk pengguna agar dapat melakukan disposisi ke user tersebut!."
+          type="warning"
+          showIcon
+          style={{ marginBottom: 15 }}
+          closable
+        />
+      )}
+
       {/* Search and Button Add */}
       <Flex
         justify="space-between"
-        align="center"
+        align="start"
         style={{ marginBottom: 15, marginTop: 15 }}
         gap={10}
       >
-        <Search />
+        <Search>
+          <strong>Catatan:</strong> Anda dapat mencari berdasarkan <em>"NIP"</em> dan <em>"Nama Lengkap".</em>
+        </Search>
 
         <ButtonIcon
           type="primary"
@@ -394,7 +416,7 @@ export default function UserManagementContainer() {
         </ButtonIcon>
       </Flex>
 
-      <div className="overflow-y-auto max-h-full" style={{
+      <div className="overflow-y-auto flex-grow" style={{
         maxHeight: "calc(100vh - 250px)",
       }}>
         <TableData<UserData>

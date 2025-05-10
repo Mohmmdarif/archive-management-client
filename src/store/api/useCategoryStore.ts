@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { axiosInstance } from "../../libs/axios";
 import { getErrorMessage } from "../../libs/utils/errorHandler";
+import useAuthStore from "./useAuthStore";
 
 interface CategoryData {
   id?: number;
@@ -21,6 +22,8 @@ interface CategoryStore {
   deleteData: (id: number) => Promise<void>;
 }
 
+const getToken = () => useAuthStore.getState().token;
+
 const useCategoryStore = create<CategoryStore>((set) => ({
   categoryData: [],
   isLoading: false,
@@ -34,7 +37,12 @@ const useCategoryStore = create<CategoryStore>((set) => ({
     });
 
     try {
-      const response = await axiosInstance.get("/categories");
+      const response = await axiosInstance.get("/categories", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
       set({
         categoryData: response.data.data || [],
         isLoading: false,
@@ -49,7 +57,12 @@ const useCategoryStore = create<CategoryStore>((set) => ({
   addData: async (newData) => {
     set({ isLoading: true, error: null });
     try {
-      await axiosInstance.post("/categories/create", newData);
+      await axiosInstance.post("/categories/create", newData, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
       set((state) => ({
         categoryData: [...state.categoryData, newData],
         isLoading: false,
@@ -64,7 +77,12 @@ const useCategoryStore = create<CategoryStore>((set) => ({
   updateData: async (id, updatedData) => {
     set({ isLoading: true, error: null });
     try {
-      await axiosInstance.put(`/categories/${id}`, updatedData);
+      await axiosInstance.put(`/categories/${id}`, updatedData, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
       set((state) => ({
         categoryData: state.categoryData.map((data) =>
           data.id === id ? { ...data, ...updatedData } : data
@@ -81,7 +99,12 @@ const useCategoryStore = create<CategoryStore>((set) => ({
   deleteData: async (id) => {
     set({ isLoading: true, error: null });
     try {
-      await axiosInstance.delete(`/categories/${id}`);
+      await axiosInstance.delete(`/categories/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
       set((state) => ({
         categoryData: state.categoryData.filter((data) => data.id !== id),
         isLoading: false,

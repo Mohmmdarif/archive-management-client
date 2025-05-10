@@ -116,7 +116,11 @@ export default function ArchiveContainer() {
     }
   }, [letterDetails, roleId]);
 
-  const filteredData = filterData(Array.isArray(processedData) ? processedData : [], searchQuery, ["no_surat", "perihal_surat", "pengirim_surat", "penerima_surat"]);
+  const filteredData = filterData(
+    Array.isArray(processedData) ? processedData : [],
+    searchQuery,
+    ["no_surat", "perihal_surat", "pengirim_surat", "penerima_surat"]
+  );
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -282,11 +286,31 @@ export default function ArchiveContainer() {
         align: "center",
         render: (_, record) => {
           // Periksa apakah disposisi sudah dibuat
-          const isDisposisiCreated = record.Surat_Masuk?.[0]?.id_status_disposisi && record.Surat_Masuk[0].id_status_disposisi !== 1;
+          const isDisposisiCreated =
+            record.Surat_Masuk?.[0]?.id_status_disposisi &&
+            record.Surat_Masuk[0].id_status_disposisi !== 1;
 
           return (
             <Space size="small">
-              {![2].includes(roleId) && (
+              {[1, 2, 3, 5].includes(roleId) && record.id_type_surat === 1 && (
+                <ButtonIcon
+                  tooltipTitle={`${isDisposisiCreated ? "Pratinjau" : "Ajukan"
+                    }`}
+                  shape="circle"
+                  icon={
+                    isDisposisiCreated ? (
+                      <IoEyeOutline />
+                    ) : (
+                      <IoArrowRedoOutline />
+                    )
+                  }
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/arsip/disposisi/${record.id}`);
+                  }}
+                />
+              )}
+              {![2, 5].includes(roleId) && (
                 <>
                   <ButtonIcon
                     tooltipTitle="Edit"
@@ -302,17 +326,6 @@ export default function ArchiveContainer() {
                   />
                 </>
               )}
-              {[1, 2, 3].includes(roleId) && record.id_type_surat === 1 && (
-                <ButtonIcon
-                  tooltipTitle={`${isDisposisiCreated ? "Pratinjau" : "Ajukan"}`}
-                  shape="circle"
-                  icon={isDisposisiCreated ? <IoEyeOutline /> : <IoArrowRedoOutline />}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/arsip/disposisi/${record.id}`);
-                  }}
-                />
-              )}
             </Space>
           );
         },
@@ -322,14 +335,14 @@ export default function ArchiveContainer() {
   );
 
   return (
-    <section className="bg-white w-full h-auto p-5 rounded-lg relative">
+    <section className="bg-white w-full h-full flex flex-col p-5 rounded-lg relative">
       {/* Notify Context */}
       {contextHolder}
 
       {/* Sub Header */}
       <SubHeader
         subHeaderTitle={
-          roleId === 1 || roleId === 2
+          [1, 2, 5].includes(roleId)
             ? "Data Surat"
             : roleId === 3
               ? "Data Surat Masuk"
@@ -340,17 +353,17 @@ export default function ArchiveContainer() {
       {/* Search */}
       <Flex
         justify="space-between"
-        align="center"
+        align="start"
         style={{ marginBottom: 15, marginTop: 15 }}
         gap={10}
       >
-        <div>
-          <Search />
+        <Search>
           {/* Note untuk informasi pencarian */}
-          <div style={{ marginTop: 5, fontSize: "12px", color: "#888" }}>
-            <strong>Catatan:</strong> Anda dapat mencari berdasarkan <em>"No Surat"</em>, <em>"Perihal Surat"</em>, <em>"Pengirim Surat"</em>, atau <em>"Penerima Surat"</em>.
-          </div>
-        </div>
+          {" "}
+          <strong>Catatan:</strong> Anda dapat mencari berdasarkan{" "}
+          <em>"No Surat"</em>, <em>"Perihal Surat"</em>,{" "}
+          <em>"Pengirim Surat"</em>, atau <em>"Penerima Surat"</em>.
+        </Search>
 
         <Upload
           accept=".pdf"
@@ -372,7 +385,8 @@ export default function ArchiveContainer() {
       </Flex>
 
       {/* Table Data */}
-      <div className="overflow-y-auto max-h-full"
+      <div
+        className="overflow-y-auto flex-grow"
         style={{
           maxHeight: "calc(100vh - 250px)",
         }}
@@ -403,7 +417,6 @@ export default function ArchiveContainer() {
       {isLoading && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-white bg-opacity-75 z-50">
           <Loading />
-          <span>Menunggu hasil Klasifikasi...</span>
         </div>
       )}
     </section>

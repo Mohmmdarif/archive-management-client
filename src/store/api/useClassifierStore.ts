@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { axiosInstance } from "../../libs/axios";
 import { getErrorMessage } from "../../libs/utils/errorHandler";
+import useAuthStore from "./useAuthStore";
 
 interface ClassifierData {
   id?: number;
@@ -13,6 +14,8 @@ interface ClassifierStore {
   error: string | null;
   fetchClassifierData: () => Promise<void>;
 }
+
+const getToken = () => useAuthStore.getState().token;
 
 const useClassifierStore = create<ClassifierStore>((set) => ({
   classifierData: [],
@@ -27,7 +30,12 @@ const useClassifierStore = create<ClassifierStore>((set) => ({
     });
 
     try {
-      const response = await axiosInstance.get("/classifier");
+      const response = await axiosInstance.get("/classifier", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
       set({
         classifierData: response.data.data || [],
         isLoading: false,

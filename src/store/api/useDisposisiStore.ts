@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { axiosInstance } from "../../libs/axios";
 import { getErrorMessage } from "../../libs/utils/errorHandler";
+import useAuthStore from "./useAuthStore";
 
 interface pengajuPenerimaDisposisi {
   id: string;
@@ -83,6 +84,8 @@ interface DisposisiStore {
   createDisposisi: (data: DisposisiCreate) => Promise<void>;
 }
 
+const getToken = () => useAuthStore.getState().token;
+
 const useDisposisiStore = create<DisposisiStore>((set) => ({
   suratDisposisiByPenerima: [],
   disposisiData: [],
@@ -98,7 +101,12 @@ const useDisposisiStore = create<DisposisiStore>((set) => ({
     });
 
     try {
-      const response = await axiosInstance.get(`/disposisi/${id}`);
+      const response = await axiosInstance.get(`/disposisi/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
       set({
         disposisiData: response.data.data || [],
         isLoading: false,
@@ -116,7 +124,12 @@ const useDisposisiStore = create<DisposisiStore>((set) => ({
     });
 
     try {
-      const response = await axiosInstance.get(`/disposisi/surat/${id}`);
+      const response = await axiosInstance.get(`/disposisi/surat/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
       set({
         disposisiData: response.data.data || [],
         isLoading: false,
@@ -135,7 +148,13 @@ const useDisposisiStore = create<DisposisiStore>((set) => ({
 
     try {
       const response = await axiosInstance.get(
-        `/disposisi/surat/penerima/${id}`
+        `/disposisi/surat/penerima/${id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
       );
       set({
         suratDisposisiByPenerima: response.data.data || [],
@@ -154,7 +173,12 @@ const useDisposisiStore = create<DisposisiStore>((set) => ({
     });
 
     try {
-      const response = await axiosInstance.get("/disposisi/status");
+      const response = await axiosInstance.get("/disposisi/status", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
       set({
         disposisiStatus: response.data.data || [],
         isLoading: false,
@@ -172,7 +196,12 @@ const useDisposisiStore = create<DisposisiStore>((set) => ({
     });
 
     try {
-      const response = await axiosInstance.post("/disposisi/create", data);
+      const response = await axiosInstance.post("/disposisi/create", data, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
       set({
         disposisiCreate: response.data.data || [],
         isLoading: false,

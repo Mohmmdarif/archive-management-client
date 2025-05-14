@@ -52,15 +52,21 @@ export default function DisposisiDetailContainer() {
   const [parentDisposisiId, setParentDisposisiId] = useState<string | null>(
     null
   );
-  const getUserId = useAuthStore((state) => state.getUserId);
+  const { getUserId, getRole } = useAuthStore();
   const userId = getUserId();
+  const roleId = getRole();
   const [formVisible, setFormVisible] = useState(false);
   const [timelineMode, setTimelineMode] = useState<"alternate" | "left">(
     window.innerWidth <= 768 ? "left" : "alternate"
   );
+
   // jika user dengan id ini belum memiliki jabatan maka tidak bisa melakukan disposisi
   const userWithNoJabatan = userManagementData.find(
     (user) => user.id === userId && !user.jabatan
+  );
+
+  const isRoleDekan = userManagementData.some(
+    (user) => user.id === userId && roleId === 2 && user.jabatan === "Dekan"
   );
 
   // Ambil disposisi terakhir
@@ -131,6 +137,7 @@ export default function DisposisiDetailContainer() {
   console.log(disposisiData, "ini disposisi data");
 
   const handleCreateDisposisi = async (values: DisposisiCreate) => {
+    console.log("values", values);
     try {
       const payload = {
         ...values,
@@ -160,17 +167,43 @@ export default function DisposisiDetailContainer() {
     }
   };
 
+  const displayName =
+    disposisiData.length > 0
+      ? disposisiData[disposisiData.length - 1]?.pengaju?.nama_lengkap || "Tidak Diketahui"
+      : roleId === 5
+        ? "Tidak Diketahui"
+        : userManagementData.find((user) => user.id === userId)?.nama_lengkap || "Tidak Diketahui";
+
+  const initialName = () => {
+    if (disposisiData.length === 0) {
+      // Jika tidak ada disposisi, gunakan nama pengirim surat
+      return userManagementData.find((user) => user.id === userId)?.nama_lengkap || "";
+    }
+
+    const lastDisposisi = disposisiData[disposisiData.length - 1];
+
+    if (
+      lastDisposisi?.id_penerima === userId ||
+      lastStatusId === 6 || // Selesai
+      lastStatusId === 8 // Ditolak
+    ) {
+      // Jika user adalah penerima disposisi terakhir atau status selesai/ditolak
+      return lastDisposisi?.pengaju?.nama_lengkap || "";
+    }
+
+    // Fallback ke nama pengguna yang sedang login
+    return lastDisposisi?.pengaju?.nama_lengkap || "";
+  };
+
   return (
     <section className="bg-white w-full h-auto p-5 rounded-lg">
       {/* Notify Context */}
       {contextHolder}
 
       <Text strong>
-        {disposisiData.length === 0
-          ? "Dari :"
-          : disposisiData[disposisiData.length - 1]?.id_penerima === userId ||
-            lastStatusId === 6 || // Selesai
-            lastStatusId === 8 // Ditolak
+        {disposisiData.length > 0
+          ? "Terusan dari :"
+          : roleId === 5
             ? "Terusan dari :"
             : "Dari :"}
       </Text>
@@ -181,17 +214,7 @@ export default function DisposisiDetailContainer() {
             style={{
               backgroundColor: getColor(
                 getInitial(
-                  disposisiData.length === 0
-                    ? userManagementData.find((user) => user.id === userId)
-                      ?.nama_lengkap || ""
-                    : disposisiData[disposisiData.length - 1]?.id_penerima ===
-                      userId ||
-                      lastStatusId === 6 || // Selesai
-                      lastStatusId === 8 // Ditolak
-                      ? disposisiData[disposisiData.length - 1]?.pengaju
-                        ?.nama_lengkap || ""
-                      : userManagementData.find((user) => user.id === userId)
-                        ?.nama_lengkap || ""
+                  initialName()
                 )
               ),
               width: 50,
@@ -201,46 +224,16 @@ export default function DisposisiDetailContainer() {
           >
             <span className="text-white font-bold text-lg">
               {getInitial(
-                disposisiData.length === 0
-                  ? userManagementData.find((user) => user.id === userId)
-                    ?.nama_lengkap || ""
-                  : disposisiData[disposisiData.length - 1]?.id_penerima ===
-                    userId ||
-                    lastStatusId === 6 || // Selesai
-                    lastStatusId === 8 // Ditolak
-                    ? disposisiData[disposisiData.length - 1]?.pengaju
-                      ?.nama_lengkap || ""
-                    : userManagementData.find((user) => user.id === userId)
-                      ?.nama_lengkap || ""
+                initialName()
               )}
             </span>
           </div>
           <div className="flex flex-col text-left space-y-1">
             <span className="text-sm font-semibold">
-              {disposisiData.length === 0
-                ? userManagementData.find((user) => user.id === userId)
-                  ?.nama_lengkap || "Tidak Diketahui"
-                : disposisiData[disposisiData.length - 1]?.id_penerima ===
-                  userId ||
-                  lastStatusId === 6 || // Selesai
-                  lastStatusId === 8 // Ditolak
-                  ? disposisiData[disposisiData.length - 1]?.pengaju
-                    ?.nama_lengkap || "Tidak Diketahui"
-                  : userManagementData.find((user) => user.id === userId)
-                    ?.nama_lengkap || "Tidak Diketahui"}
+              {displayName}
             </span>
             <span className="text-xs">
-              {disposisiData.length === 0
-                ? userManagementData.find((user) => user.id === userId)
-                  ?.jabatan || "Tidak Diketahui"
-                : disposisiData[disposisiData.length - 1]?.id_penerima ===
-                  userId ||
-                  lastStatusId === 6 || // Selesai
-                  lastStatusId === 8 // Ditolak
-                  ? disposisiData[disposisiData.length - 1]?.pengaju?.jabatan ||
-                  "Tidak Diketahui"
-                  : userManagementData.find((user) => user.id === userId)
-                    ?.jabatan || "Tidak Diketahui"}
+              {displayName}
             </span>
           </div>
         </div>
@@ -312,7 +305,7 @@ export default function DisposisiDetailContainer() {
             />
           ) : !formVisible ? (
             // Jika form belum ditampilkan, tampilkan tombol untuk membuka form
-            isUserPenerimaDisposisi && (
+            disposisiData.length === 0 && isRoleDekan ? (
               <Alert
                 message="Tindak Lanjut Disposisi"
                 description="Klik tombol di bawah untuk menindaklanjuti disposisi ini."
@@ -328,6 +321,24 @@ export default function DisposisiDetailContainer() {
                   </Button>
                 }
               />
+            ) : (
+              isUserPenerimaDisposisi && (
+                <Alert
+                  message="Tindak Lanjut Disposisi"
+                  description="Klik tombol di bawah untuk menindaklanjuti disposisi ini."
+                  type="info"
+                  showIcon
+                  action={
+                    <Button
+                      type="primary"
+                      style={{ height: "55px" }}
+                      onClick={() => setFormVisible(true)}
+                    >
+                      Tindak Lanjut
+                    </Button>
+                  }
+                />
+              )
             )
           ) : (
             userWithNoJabatan ? (
@@ -363,64 +374,63 @@ export default function DisposisiDetailContainer() {
                     rules={[
                       {
                         validator: (_, value) => {
-                          const idStatusDisposisi = form.getFieldValue(
-                            "id_status_disposisi"
-                          );
-                          if (
-                            !value &&
-                            idStatusDisposisi !== 6 &&
-                            idStatusDisposisi !== 8
-                          ) {
-                            return Promise.reject(
-                              new Error("Pilih tujuan disposisi!")
-                            );
+                          const idStatusDisposisi = form.getFieldValue("id_status_disposisi");
+
+                          if (!value && idStatusDisposisi !== 6 && idStatusDisposisi !== 8) {
+                            return Promise.reject(new Error("Pilih tujuan disposisi!"));
                           }
                           return Promise.resolve();
-                        },
+                        }
                       },
                     ]}
                   >
-                    <Select
-                      placeholder="Pilih Tujuan Disposisi"
-                      className="w-full"
-                      style={{ height: "40px" }}
-                      allowClear
-                      options={userManagementData
-                        .filter(
-                          (user) =>
-                            user.jabatan !== null &&
-                            user.jabatan !== undefined &&
-                            user.role_id !== 4 &&
-                            user.id !== userId
-                        )
-                        .map((user) => ({
-                          label: (
-                            <div className="flex items-center gap-2">
-                              <div
-                                className="flex items-center justify-center bg-white p-3 rounded-lg shadow-md"
-                                style={{
-                                  backgroundColor: getColor(
-                                    getInitial(user.nama_lengkap)
-                                  ),
-                                  width: 25,
-                                  height: 25,
-                                  borderRadius: "50%",
-                                }}
-                              >
-                                <span className="text-white font-bold text-xs">
-                                  {getInitial(user.nama_lengkap)}
-                                </span>
+                    <>
+                      <Select
+                        placeholder="Pilih Tujuan Disposisi"
+                        className="w-full"
+                        style={{ height: "40px" }}
+                        allowClear
+                        onChange={(value) => {
+                          console.log("Selected id_penerima:", value); // Log nilai yang dipilih
+                          form.setFieldsValue({ id_penerima: value }); // Perbarui nilai di form state
+                        }}
+                        options={userManagementData
+                          .filter(
+                            (user) =>
+                              user.jabatan !== null &&
+                              user.jabatan !== undefined &&
+                              user.role_id !== 4 &&
+                              user.id !== userId
+                          )
+                          .map((user) => ({
+                            label: (
+                              <div className="flex items-center gap-2">
+                                <div
+                                  className="flex items-center justify-center bg-white p-3 rounded-lg shadow-md"
+                                  style={{
+                                    backgroundColor: getColor(
+                                      getInitial(user.nama_lengkap)
+                                    ),
+                                    width: 25,
+                                    height: 25,
+                                    borderRadius: "50%",
+                                  }}
+                                >
+                                  <span className="text-white font-bold text-xs">
+                                    {getInitial(user.nama_lengkap)}
+                                  </span>
+                                </div>
+                                <span className="font-medium">{`${user.nama_lengkap} - ${user.jabatan}`}</span>
                               </div>
-                              <span className="font-medium">{`${user.nama_lengkap} - ${user.jabatan}`}</span>
-                            </div>
-                          ),
-                          value: user.id,
-                        }))}
-                    />
-                    {/* Note untuk informasi pencarian */}
-                    <div style={{ marginTop: 5, fontSize: "12px", color: "#888" }}>
-                      <strong>Catatan:</strong> Anda dapat mengosongkan <em>"Tujuan Surat"</em> apabila status disposisi yang dipilih adalah <strong>"Selesai / Arsipkan"</strong> atau <strong>"Ditolak / Tidak Relevan"</strong>.
-                    </div>
+                            ),
+                            value: user.id,
+                          }))}
+                      />
+                      {/* Note untuk informasi pencarian */}
+                      <div style={{ marginTop: 5, fontSize: "12px", color: "#888" }}>
+                        <strong>Catatan:</strong> Anda dapat mengosongkan <em>"Tujuan Surat"</em> apabila status disposisi yang dipilih adalah <strong>"Selesai / Arsipkan"</strong> atau <strong>"Ditolak / Tidak Relevan"</strong>.
+                      </div>
+                    </>
                   </Form.Item>
                   <Form.Item
                     label="Status Disposisi"

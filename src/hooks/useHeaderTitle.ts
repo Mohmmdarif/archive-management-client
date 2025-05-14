@@ -4,7 +4,7 @@ const useHeaderTitle = () => {
   const location = useLocation();
 
   if (location.pathname.startsWith("/arsip/disposisi/")) {
-    return "Disposisi Surat";
+    return "Disposisi Detail";
   }
 
   switch (location.pathname) {

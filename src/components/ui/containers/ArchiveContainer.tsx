@@ -222,25 +222,105 @@ export default function ArchiveContainer() {
         key: "tanggal_surat",
         render: (tanggal) =>
           tanggal ? dayjs(tanggal).format("DD MMMM YYYY") : "-",
+
+        filters: [
+          { text: "Hari Ini", value: "today" },
+          { text: "Kemarin", value: "yesterday" },
+          { text: "7 Hari Terakhir", value: "last7days" },
+          { text: "30 Hari Terakhir", value: "last30days" },
+          { text: "Bulan Ini", value: "thisMonth" },
+          { text: "Bulan Lalu", value: "lastMonth" },
+          { text: "Tahun Ini", value: "thisYear" },
+          { text: "Tahun Lalu", value: "lastYear" },
+        ],
+
+        onFilter: (value, record) => {
+          const tanggalRecord = dayjs(record.tanggal_surat).format("YYYY-MM-DD");
+
+          const today = dayjs().format("YYYY-MM-DD");
+          const yesterday = dayjs().subtract(1, "day").format("YYYY-MM-DD");
+          const sevenDaysAgo = dayjs().subtract(7, "day").format("YYYY-MM-DD");
+          const thirtyDaysAgo = dayjs().subtract(30, "day").format("YYYY-MM-DD");
+          const thisMonth = dayjs().format("YYYY-MM");
+          const lastMonth = dayjs().subtract(1, "month").format("YYYY-MM");
+          const thisYear = dayjs().format("YYYY");
+          const lastYear = dayjs().subtract(1, "year").format("YYYY");
+
+          switch (value) {
+            case "today":
+              return tanggalRecord === today;
+            case "yesterday":
+              return tanggalRecord === yesterday;
+            case "last7days":
+              return tanggalRecord >= sevenDaysAgo;
+            case "last30days":
+              return tanggalRecord >= thirtyDaysAgo;
+            case "thisMonth":
+              return tanggalRecord.startsWith(thisMonth);
+            case "lastMonth":
+              return tanggalRecord.startsWith(lastMonth);
+            case "thisYear":
+              return tanggalRecord.startsWith(thisYear);
+            case "lastYear":
+              return tanggalRecord.startsWith(lastYear);
+            default:
+              return false;
+          }
+        },
+
+        onFilterDropdownOpenChange: (visible) => {
+          if (visible) {
+            setTimeout(() => {
+              const input = document.querySelector(
+                ".ant-table-filter-dropdown input"
+              ) as HTMLInputElement;
+              if (input) {
+                input.focus();
+              }
+            }, 0);
+          }
+        },
       },
       {
         title: "Pengirim",
         dataIndex: "pengirim_surat",
         key: "pengirim_surat",
+        filters: Array.from(
+          new Set(processedData.map((item) => item.pengirim_surat))
+        ).map((name) => ({
+          text: name,
+          value: name,
+        })),
+        onFilter: (value, record) => record.pengirim_surat === value,
+        render: (text) => <span className="text-ellipsis line-clamp-1">{text}</span>,
       },
       {
         title: "Penerima",
         dataIndex: "penerima_surat",
         key: "penerima_surat",
         width: 200,
-        render: (text) => (
-          <span className="text-ellipsis line-clamp-1">{text}</span>
-        ),
+        filters: Array.from(
+          new Set(processedData.map((item) => item.penerima_surat))
+        ).map((name) => ({
+          text: name,
+          value: name,
+        })),
+        onFilter: (value, record) => record.penerima_surat === value,
+        render: (text) => <span className="text-ellipsis line-clamp-1">{text}</span>,
       },
       {
         title: "Jenis Surat",
         dataIndex: "id_type_surat",
         key: "id_type_surat",
+        filters:
+          [1, 2, 5].includes(roleId) ? classifierData
+            .filter(item => item.id !== undefined && item.id !== null)
+            .map(item => ({
+              text: item.nama_type,
+              value: item.id as string | number | boolean,
+            })) : undefined,
+
+        onFilter: (value, record) => record.id_type_surat === value,
         render: (id) => {
           const type = classifierData.find((item) => item.id === id);
           return (
@@ -256,6 +336,14 @@ export default function ArchiveContainer() {
         title: "Pengarsip",
         dataIndex: "pengarsip",
         key: "pengarsip",
+        filters: Array.from(
+          new Set(processedData.map((item) => item.pengarsip))
+        ).map((name) => ({
+          text: name,
+          value: name,
+        })),
+        onFilter: (value, record) => record.pengarsip === value,
+        render: (text) => <span style={{ textTransform: "capitalize" }}>{text}</span>,
       },
       {
         title: "Tanggal Diarsipkan",
@@ -263,6 +351,67 @@ export default function ArchiveContainer() {
         key: "created_at",
         render: (tanggal) =>
           tanggal ? dayjs(tanggal).format("DD MMMM YYYY") : "-",
+        sorter: (a, b) => {
+          const dateA = dayjs(a.created_at).unix();
+          const dateB = dayjs(b.created_at).unix();
+          return dateA - dateB;
+        },
+        filters: [
+          { text: "Hari Ini", value: "today" },
+          { text: "Kemarin", value: "yesterday" },
+          { text: "7 Hari Terakhir", value: "last7days" },
+          { text: "30 Hari Terakhir", value: "last30days" },
+          { text: "Bulan Ini", value: "thisMonth" },
+          { text: "Bulan Lalu", value: "lastMonth" },
+          { text: "Tahun Ini", value: "thisYear" },
+          { text: "Tahun Lalu", value: "lastYear" },
+        ],
+        onFilter: (value, record) => {
+          const tanggalRecord = dayjs(record.created_at).format("YYYY-MM-DD");
+
+          const today = dayjs().format("YYYY-MM-DD");
+          const yesterday = dayjs().subtract(1, "day").format("YYYY-MM-DD");
+          const sevenDaysAgo = dayjs().subtract(7, "day").format("YYYY-MM-DD");
+          const thirtyDaysAgo = dayjs().subtract(30, "day").format("YYYY-MM-DD");
+          const thisMonth = dayjs().format("YYYY-MM");
+          const lastMonth = dayjs().subtract(1, "month").format("YYYY-MM");
+          const thisYear = dayjs().format("YYYY");
+          const lastYear = dayjs().subtract(1, "year").format("YYYY");
+
+          switch (value) {
+            case "today":
+              return tanggalRecord === today;
+            case "yesterday":
+              return tanggalRecord === yesterday;
+            case "last7days":
+              return tanggalRecord >= sevenDaysAgo;
+            case "last30days":
+              return tanggalRecord >= thirtyDaysAgo;
+            case "thisMonth":
+              return tanggalRecord.startsWith(thisMonth);
+            case "lastMonth":
+              return tanggalRecord.startsWith(lastMonth);
+            case "thisYear":
+              return tanggalRecord.startsWith(thisYear);
+            case "lastYear":
+              return tanggalRecord.startsWith(lastYear);
+            default:
+              return false;
+          }
+        },
+        onFilterDropdownOpenChange: (visible) => {
+          if (visible) {
+            setTimeout(() => {
+              const input = document.querySelector(
+                ".ant-table-filter-dropdown input"
+              ) as HTMLInputElement;
+              if (input) {
+                input.focus();
+              }
+            }, 0);
+          }
+        },
+
       },
       {
         title: "File",
@@ -370,7 +519,7 @@ export default function ArchiveContainer() {
           customRequest={handleUpload}
           showUploadList={false}
         >
-          {![2].includes(roleId) && (
+          {![2, 5].includes(roleId) && (
             <ButtonIcon
               type="primary"
               icon={isLoading ? <Spin size="small" /> : <BiPlus />}

@@ -111,7 +111,6 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
 
   useEffect(() => {
     if (visible && data.length > 0 && userMe) {
-      console.log("data", data);
       const entity = data[0].data.entities;
       const classification = data[0].data.classification[0];
       const mappedClassification = labelMapping[classification?.Classify as keyof typeof labelMapping];

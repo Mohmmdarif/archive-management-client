@@ -5,9 +5,9 @@ import Sidebar from "../ui/sidebar/Sidebar";
 import SidebarContent from "../ui/sidebar/SidebarContent";
 import useHeaderTitle from "../../hooks/useHeaderTitle";
 import LiveDateTime from "../ui/LiveDateTime";
-import { BiUser } from "react-icons/bi";
 import useUserManagementStore from "../../store/api/useUserManagementStore";
 import { useEffect } from "react";
+import { getColor, getInitial } from "../../libs/utils/randomProfile";
 
 const { Header, Content } = Layout;
 
@@ -21,6 +21,8 @@ export default function MainLayout() {
     fetchUserManagementDataById();
   }, [fetchUserManagementDataById]);
 
+  console.log(getInitial((userMe?.nama_lengkap || "")))
+  console.log(getColor(userMe?.nama_lengkap || ""));
   return (
     <Layout className="h-screen">
       {/* Sidebar */}
@@ -40,9 +42,13 @@ export default function MainLayout() {
               <span className="text-xl md:text-3xl font-bold">{title}</span>
               <LiveDateTime />
             </div>
-            <button className="flex items-center gap-2 cursor-pointer hover:bg-gray-200 p-2 rounded-lg">
-              <div className="bg-white p-3 rounded-lg shadow-md">
-                <BiUser size={30} color="#C1C7CD" />
+            <button className="flex items-center gap-2 cursor-pointer p-2 rounded-lg">
+              <div className="p-3 rounded-lg shadow-md flex items-center justify-center text-white font-bold text-xl" style={{
+                backgroundColor: getColor(getInitial(userMe?.nama_lengkap || "")),
+                width: 55,
+                height: 55,
+              }}>
+                {getInitial((userMe?.nama_lengkap || ""))}
               </div>
               <div className="hidden md:flex flex-col text-left space-y-1">
                 {isLoading ? (

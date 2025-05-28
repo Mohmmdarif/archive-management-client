@@ -132,12 +132,8 @@ export default function DisposisiDetailContainer() {
     fetchUserManagementData();
   }, [fetchDisposisiStatus, fetchUserManagementData]);
 
-  console.log(letterDetails, "ini surat masuk");
-  console.log(letterDetails?.Surat_Masuk?.[0]?.id, "ini parent disposisi id");
-  console.log(disposisiData, "ini disposisi data");
 
   const handleCreateDisposisi = async (values: DisposisiCreate) => {
-    console.log("values", values);
     try {
       const payload = {
         ...values,
@@ -391,7 +387,6 @@ export default function DisposisiDetailContainer() {
                         style={{ height: "40px" }}
                         allowClear
                         onChange={(value) => {
-                          console.log("Selected id_penerima:", value); // Log nilai yang dipilih
                           form.setFieldsValue({ id_penerima: value }); // Perbarui nilai di form state
                         }}
                         options={userManagementData

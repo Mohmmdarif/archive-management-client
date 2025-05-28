@@ -28,8 +28,6 @@ export default function Disposisi() {
     fetchDisposisiStatus();
   }, [fetchDisposisiStatus]);
 
-  console.log("suratDisposisiByPenerima", suratDisposisiByPenerima);
-
 
   const handleNavigate = useCallback(async (id: string) => {
     try {

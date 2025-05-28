@@ -3,7 +3,7 @@ import { Menu } from "antd";
 
 import items from "../../../hooks/useMenuItems";
 import useCollapsible from "../../../store/useCollapsible";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ButtonIcon from "../buttons/ButtonIcon";
 
 import { IoLogOutOutline } from "react-icons/io5";

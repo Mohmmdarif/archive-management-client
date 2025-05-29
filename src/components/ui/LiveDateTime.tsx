@@ -1,17 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export default function LiveDateTime() {
-  const [currentDateTime, setCurrentDateTime] = useState(
+  const [currentDateTime] = useState(
     getFormattedDateTime()
   );
-
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     setCurrentDateTime(getFormattedDateTime()); // Update setiap detik
-  //   }, 1000);
-
-  //   return () => clearInterval(interval); // Hapus interval saat komponen unmount
-  // }, []);
 
   return <span className="text-sm md:text-base">{currentDateTime}</span>;
 }

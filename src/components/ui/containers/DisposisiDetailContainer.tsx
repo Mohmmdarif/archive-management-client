@@ -9,7 +9,7 @@ import {
   Timeline,
   Typography,
 } from "antd";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getColor, getInitial } from "../../../libs/utils/randomProfile";
 import { useNavigate, useParams } from "react-router";
 import useLetterStore from "../../../store/api/useLetterStore";

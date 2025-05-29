@@ -1,4 +1,4 @@
-import { Alert, Badge, Button, Flex, Modal, Space, Spin, Upload } from "antd";
+import { Badge, Button, Flex, Modal, Space, Spin, Upload } from "antd";
 import TableData from "../table/TableData";
 import ButtonIcon from "../buttons/ButtonIcon";
 

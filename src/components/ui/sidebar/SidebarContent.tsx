@@ -23,7 +23,7 @@ export default function SidebarContent() {
   const { userManagementData, fetchUserManagementData } = useUserManagementStore();
 
   const currentUser = userManagementData.find((user) => user.id === userId);
-  const isDekan = currentUser?.jabatan.toLowerCase() === "dekan";
+  const isDekan = currentUser?.jabatan && currentUser?.jabatan.toLowerCase() === "dekan";
 
   useEffect(() => {
     fetchUserManagementData();

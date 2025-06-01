@@ -21,8 +21,6 @@ export default function MainLayout() {
     fetchUserManagementDataById();
   }, [fetchUserManagementDataById]);
 
-  console.log(getInitial((userMe?.nama_lengkap || "")))
-  console.log(getColor(userMe?.nama_lengkap || ""));
   return (
     <Layout className="h-screen">
       {/* Sidebar */}

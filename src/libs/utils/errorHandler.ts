@@ -13,7 +13,7 @@ export const getErrorMessage = (error: unknown): string => {
           data?: {
             success?: boolean;
             message?: string;
-            details?: any;
+            details?: unknown;
           };
           status?: number;
         }

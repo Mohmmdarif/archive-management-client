@@ -1,7 +1,7 @@
+import { useEffect } from "react";
 import { Button, Form, FormProps, Input } from "antd";
 import useAuthStore from "../../../store/api/useAuthStore";
 import useNotify from "../../../hooks/useNotify";
-import { useEffect } from "react";
 import { getErrorMessage } from "../../../libs/utils/errorHandler";
 
 type LoginFormType = {
@@ -24,16 +24,6 @@ export default function LoginForm() {
   const onFinish: FormProps<LoginFormType>["onFinish"] = async (values) => {
     try {
       await login(values);
-
-      // notify({
-      //   type: "success",
-      //   notifyTitle: "Login success",
-      //   notifyContent: "You have successfully logged in.",
-      // });
-
-      // setTimeout(() => {
-      //   navigate("/dashboard");
-      // }, 1000);
     } catch (error) {
       notify({
         type: "error",

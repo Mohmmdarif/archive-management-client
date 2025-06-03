@@ -131,8 +131,8 @@ export default function ModalEditDetailLetter({
 
       notify({
         type: "success",
-        notifyTitle: "Berhasil!",
-        notifyContent: "Data berhasil diperbarui.",
+        notifyTitle: "Success!",
+        notifyContent: "Data has been successfully updated.",
       });
     } catch (error) {
       notify({

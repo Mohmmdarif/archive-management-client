@@ -1,4 +1,4 @@
-import { Modal, Row, Col, Descriptions, Button, Space, Input, DatePicker, Select, Form } from "antd";
+import { Modal, Row, Col, Descriptions, Button, Space, Input, DatePicker, Select, Form, Alert } from "antd";
 import { useEffect, useState } from "react";
 import { IoEyeOutline } from "react-icons/io5";
 import { MdOutlineFileDownload } from "react-icons/md";
@@ -12,6 +12,7 @@ import useLetterStore from "../../../store/api/useLetterStore";
 import useNotify from "../../../hooks/useNotify";
 import { getErrorMessage } from "../../../libs/utils/errorHandler";
 import useUserManagementStore from "../../../store/api/useUserManagementStore";
+import useAuthStore from "../../../store/api/useAuthStore";
 
 const { Option } = Select;
 
@@ -96,10 +97,14 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
   const { savedConfirmedData, fetchSuratData } = useLetterStore();
   const { userMe, isLoading, fetchUserManagementData } =
     useUserManagementStore();
+  const { getRole } = useAuthStore();
   const [classification, setClassification] = useState<string | number>(
     data[0]?.data?.classification[0]?.Classify
   );
+  const [showClassificationWarning, setShowClassificationWarning] = useState(false);
+  const [predictedClassification, setPredictedClassification] = useState<number | null>(null);
 
+  const roleId = getRole();
 
   useEffect(() => {
     fetchTypeData();
@@ -114,6 +119,9 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
       const entity = data[0].data.entities;
       const classification = data[0].data.classification[0];
       const mappedClassification = labelMapping[classification?.Classify as keyof typeof labelMapping];
+      setPredictedClassification(
+        typeof mappedClassification === "number" ? mappedClassification : null
+      );
 
       form.resetFields();
 
@@ -137,6 +145,7 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
         tanggal_kirim: dayjs(),
       });
       setClassification(mappedClassification ?? "");
+      setShowClassificationWarning(false);
     }
   }, [visible, data, form, classifierData, criteriaData, typeData, fetchUserManagementData, userMe]);
 
@@ -146,6 +155,16 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
 
       // Perbarui state classification menggunakan mapping
       setClassification(labelMapping[newClassification as keyof typeof labelMapping]);
+
+      // Tampilkan warning jika user mengubah dari prediksi awal
+      if (
+        predictedClassification !== null &&
+        Number(newClassification) !== predictedClassification
+      ) {
+        setShowClassificationWarning(true);
+      } else {
+        setShowClassificationWarning(false);
+      }
 
       // Reset atau sembunyikan input tertentu berdasarkan classification
       if (labelMapping[newClassification as keyof typeof labelMapping] === "surat masuk") {
@@ -172,6 +191,26 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
         ...values,
         id_type_surat: Number(idTypeSurat), // Ensure id_type_surat is a number
       };
+
+      // surat masuk hanya dapat disimpan oleh user yang memiliki role 3 dan 1
+      if (idTypeSurat === 1 && roleId !== 3 && roleId !== 1) {
+        notify({
+          type: "error",
+          notifyTitle: "Error!",
+          notifyContent: "You do not have permission to archive incoming letters.",
+        });
+        return;
+      }
+
+      // surat keluar hanya dapat disimpan oleh user yang memiliki role 4 dan 1
+      if (idTypeSurat === 2 && roleId !== 4 && roleId !== 1) {
+        notify({
+          type: "error",
+          notifyTitle: "Error!",
+          notifyContent: "You do not have permission to archive outgoing letters.",
+        });
+        return;
+      }
 
       await savedConfirmedData(payload);
       await fetchSuratData();
@@ -220,10 +259,10 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
 
   const handleCancelModal = () => {
     Modal.confirm({
-      title: "Konfirmasi",
-      content: "Apakah Anda yakin ingin menutup tanpa menyimpan?",
-      okText: "Ya",
-      cancelText: "Tidak",
+      title: "Confirmation",
+      content: "Are you sure you want to cancel? All changes will be lost.",
+      okText: "Yes",
+      cancelText: "No",
       onOk: () => {
         form.resetFields();
         setClassification("");
@@ -326,6 +365,14 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
                   ))}
                 </Select>
               </Form.Item>
+              {showClassificationWarning && (
+                <Alert
+                  message="Perhatian: Tipe surat yang dipilih berbeda dari hasil prediksi sistem. Pastikan sudah sesuai dengan dokumen asli."
+                  type="warning"
+                  showIcon
+                  style={{ marginTop: 8 }}
+                />
+              )}
             </Descriptions.Item>
             <Descriptions.Item label="Perihal">
               <Form.Item name="perihal_surat" noStyle rules={[{ required: true, message: "Perihal Surat wajib diisi" }]}>

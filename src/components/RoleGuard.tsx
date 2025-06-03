@@ -35,7 +35,7 @@ const RoleGuard: React.FC<RoleGuardProps> = ({ allowedRoles, children }) => {
       <Result
         status="403"
         title="403"
-        subTitle="Maaf, Anda tidak memiliki izin untuk mengakses halaman ini."
+        subTitle="Sorry, you are not authorized to access this page."
         extra={<Button type="primary" onClick={handleNavigate
         }>Back Home</Button>}
       />

@@ -75,12 +75,13 @@ export default function MainLayout() {
             overflowY: "auto",
             flex: 1,
             overflow: "initial",
+            minHeight: '80vh',
             backgroundColor: "#F2F5FC",
           }}
         >
           <Outlet />
         </Content>
-        {/* <Footer className="z-10">
+        {/* <Footer className="z-10" style={{ backgroundColor: "#F2F5FC", color: "black" }}>
           <div className="text-center text-gray-500">
             &copy; 2021. All Right Reserved. Fakultas Ilmu Komputer
           </div>

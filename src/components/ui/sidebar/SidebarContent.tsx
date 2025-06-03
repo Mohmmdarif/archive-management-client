@@ -36,7 +36,7 @@ export default function SidebarContent() {
   const filteredItems = items
     .filter((item) => {
       // Sembunyikan menu Masterdata jika roleId adalah 5
-      if ([2, 5].includes(roleId) && item.label === "Masterdata") {
+      if ([5].includes(roleId) && item.label === "Masterdata") {
         return false;
       }
 

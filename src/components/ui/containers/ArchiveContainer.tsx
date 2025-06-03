@@ -1,26 +1,34 @@
-import { Badge, Button, Flex, Modal, Space, Spin, Upload } from "antd";
-import TableData from "../table/TableData";
-import ButtonIcon from "../buttons/ButtonIcon";
-
-import { BiEdit, BiPlus } from "react-icons/bi";
-import { TbTrash } from "react-icons/tb";
+// Libraries
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router";
+import dayjs from "dayjs";
 import { ColumnsType } from "antd/es/table";
-import SubHeader from "../headers/SubHeader";
-import Search from "../search/Search";
+import { Badge, Button, Flex, Modal, Space, Spin, Upload } from "antd";
+
+// Hooks and Store
 import useLetterStore from "../../../store/api/useLetterStore";
-import ModalDetailLetter from "../modals/ModalDetailLetter";
 import useModalStore from "../../../store/useModal";
 import useNotify from "../../../hooks/useNotify";
-import { useEffect, useMemo, useState } from "react";
-import dayjs from "dayjs";
-import { IoArrowRedoOutline, IoEyeOutline } from "react-icons/io5";
 import useClassifierStore from "../../../store/api/useClassifierStore";
-import ModalEditDetailLetter from "../modals/ModalEditDetailLetter";
-import Loading from "../Loading";
 import useAuthStore from "../../../store/api/useAuthStore";
-import { useNavigate } from "react-router";
 import useSearchStore from "../../../store/useSearch";
 import { filterData } from "../../../libs/utils/filterData";
+import { getErrorMessage } from "../../../libs/utils/errorHandler";
+
+// Components
+import TableData from "../table/TableData";
+import ButtonIcon from "../buttons/ButtonIcon";
+import SubHeader from "../headers/SubHeader";
+import Search from "../search/Search";
+import Loading from "../Loading";
+import ModalDetailLetter from "../modals/ModalDetailLetter";
+import ModalEditDetailLetter from "../modals/ModalEditDetailLetter";
+
+// Icons
+import { TbTrash } from "react-icons/tb";
+import { BiEdit, BiPlus } from "react-icons/bi";
+import { IoArrowRedoOutline, IoEyeOutline } from "react-icons/io5";
+
 
 interface SuratMasuk {
   id: string;
@@ -126,10 +134,10 @@ export default function ArchiveContainer() {
     e.stopPropagation();
 
     Modal.confirm({
-      title: "Hapus Data Surat",
-      content: "Apakah anda yakin ingin menghapus data surat ini?",
-      okText: "Hapus",
-      cancelText: "Batal",
+      title: "Delete Letter Data",
+      content: "Are you sure you want to delete this letter data?",
+      okText: "Delete",
+      cancelText: "Cancel",
       onOk: async () => {
         try {
           await deleteData(id);
@@ -137,14 +145,14 @@ export default function ArchiveContainer() {
           // Show notification
           notify({
             type: "success",
-            notifyTitle: "Berhasil!",
-            notifyContent: "Data surat berhasil dihapus.",
+            notifyTitle: "Success!",
+            notifyContent: "Letter data has been successfully deleted.",
           });
         } catch (error) {
           notify({
             type: "error",
             notifyTitle: "Error!",
-            notifyContent: (error as Error).message,
+            notifyContent: getErrorMessage(error as Error),
           });
         }
       },
@@ -173,9 +181,9 @@ export default function ArchiveContainer() {
         onSuccess(file);
         notify({
           type: "warning",
-          notifyTitle: "Perhatian!",
+          notifyTitle: "Warning!",
           notifyContent:
-            "File berhasil diklasifikasikan, Harap periksa detail surat sebelum menyimpan data!.",
+            "File has been successfully classified. Please check the letter details before saving the data.",
         });
         // Buka modal detail surat setelah berhasil upload
         openModal();
@@ -186,8 +194,8 @@ export default function ArchiveContainer() {
         onError(error);
         notify({
           type: "error",
-          notifyTitle: "Gagal!",
-          notifyContent: (error as Error).message,
+          notifyTitle: "Error!",
+          notifyContent: getErrorMessage(error as Error),
         });
       }
     }
@@ -220,6 +228,12 @@ export default function ArchiveContainer() {
         title: "Tanggal Surat",
         dataIndex: "tanggal_surat",
         key: "tanggal_surat",
+        width: 200,
+        sorter: (a, b) => {
+          const dateA = dayjs(a.tanggal_surat).unix();
+          const dateB = dayjs(b.tanggal_surat).unix();
+          return dateA - dateB;
+        },
         render: (tanggal) =>
           tanggal ? dayjs(tanggal).format("DD MMMM YYYY") : "-",
 
@@ -285,6 +299,8 @@ export default function ArchiveContainer() {
         title: "Pengirim",
         dataIndex: "pengirim_surat",
         key: "pengirim_surat",
+        width: 200,
+        filterSearch: true,
         filters: Array.from(
           new Set(processedData.map((item) => item.pengirim_surat))
         ).map((name) => ({
@@ -299,6 +315,7 @@ export default function ArchiveContainer() {
         dataIndex: "penerima_surat",
         key: "penerima_surat",
         width: 200,
+        filterSearch: true,
         filters: Array.from(
           new Set(processedData.map((item) => item.penerima_surat))
         ).map((name) => ({
@@ -349,6 +366,7 @@ export default function ArchiveContainer() {
         title: "Tanggal Diarsipkan",
         dataIndex: "created_at",
         key: "created_at",
+        width: 200,
         render: (tanggal) =>
           tanggal ? dayjs(tanggal).format("DD MMMM YYYY") : "-",
         sorter: (a, b) => {
@@ -433,6 +451,7 @@ export default function ArchiveContainer() {
         title: "Action",
         key: "action",
         align: "center",
+        width: 150,
         render: (_, record) => {
           // Periksa apakah disposisi sudah dibuat
           const isDisposisiCreated =
@@ -564,7 +583,7 @@ export default function ArchiveContainer() {
 
       {/* loading for waiting result classification */}
       {isLoading && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-white bg-opacity-75 z-50">
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-white bg-opacity-75 z-50 rounded-lg">
           <Loading />
         </div>
       )}

@@ -1,14 +1,21 @@
+// Libraries
+import { useCallback, useEffect, useMemo } from 'react'
+import { useNavigate } from 'react-router';
+import dayjs from 'dayjs';
 import { Badge, Space } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import dayjs from 'dayjs';
-import { useCallback, useEffect, useMemo } from 'react'
-import { IoArrowRedoOutline } from 'react-icons/io5';
-import ButtonIcon from '../buttons/ButtonIcon';
+
+// Hooks and Store
 import useAuthStore from '../../../store/api/useAuthStore';
-import { useNavigate } from 'react-router';
-import TableData from '../table/TableData';
-import useDisposisiStore, { SuratDisposisi } from '../../../store/api/useDisposisiStore';
 import useLetterStore from '../../../store/api/useLetterStore';
+import useDisposisiStore, { SuratDisposisi } from '../../../store/api/useDisposisiStore';
+
+// Components
+import TableData from '../table/TableData';
+import ButtonIcon from '../buttons/ButtonIcon';
+
+// Icons
+import { IoArrowRedoOutline } from 'react-icons/io5';
 
 export default function Disposisi() {
   const navigate = useNavigate();
@@ -48,11 +55,13 @@ export default function Disposisi() {
         dataIndex: "no_agenda",
         key: "no_agenda",
         align: "center",
+        width: 150,
       },
       {
         title: "Tanggal Terima Surat",
         dataIndex: "tanggal_terima",
         key: "tanggal_terima",
+        width: 200,
         render: (tanggal_terima) =>
           tanggal_terima ? dayjs(tanggal_terima).format("DD MMMM YYYY") : "-",
       },
@@ -60,6 +69,7 @@ export default function Disposisi() {
         title: "Tanggal Disposisi",
         dataIndex: "tanggal_disposisi",
         key: "tanggal_disposisi",
+        width: 200,
         render: () => suratDisposisiByPenerima[0]?.disposisi[0]?.tanggal_disposisi
           ? dayjs(suratDisposisiByPenerima[0]?.disposisi[0]?.tanggal_disposisi).format("DD MMMM YYYY")
           : "-",
@@ -115,6 +125,7 @@ export default function Disposisi() {
         title: "Tanggal Diarsipkan",
         dataIndex: "created_at",
         key: "created_at",
+        width: 200,
         render: (tanggal) =>
           tanggal ? dayjs(tanggal).format("DD MMMM YYYY") : "-",
       },
@@ -122,6 +133,7 @@ export default function Disposisi() {
         title: "Action",
         key: "action",
         align: "center",
+        width: 100,
         render: (record) => (
           <Space size="small">
             <ButtonIcon

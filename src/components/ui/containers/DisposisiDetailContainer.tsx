@@ -1,3 +1,8 @@
+// Libraries
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router";
+import dayjs from "dayjs";
+import { useForm } from "antd/es/form/Form";
 import {
   Alert,
   Button,
@@ -9,18 +14,21 @@ import {
   Timeline,
   Typography,
 } from "antd";
-import { useEffect, useState } from "react";
-import { getColor, getInitial } from "../../../libs/utils/randomProfile";
-import { useNavigate, useParams } from "react-router";
-import useLetterStore from "../../../store/api/useLetterStore";
-import dayjs from "dayjs";
-import TextArea from "antd/es/input/TextArea";
-import useUserManagementStore from "../../../store/api/useUserManagementStore";
-import useDisposisiStore from "../../../store/api/useDisposisiStore";
+
+// Hooks and Store
 import useAuthStore from "../../../store/api/useAuthStore";
+import useLetterStore from "../../../store/api/useLetterStore";
+import useDisposisiStore from "../../../store/api/useDisposisiStore";
+import useUserManagementStore from "../../../store/api/useUserManagementStore";
 import useNotify from "../../../hooks/useNotify";
-import { useForm } from "antd/es/form/Form";
+import { getColor, getInitial } from "../../../libs/utils/randomProfile";
+
+// Components
+import TextArea from "antd/es/input/TextArea";
+
+// Icons
 import { BiArrowFromRight } from "react-icons/bi";
+import { getErrorMessage } from "../../../libs/utils/errorHandler";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -149,15 +157,15 @@ export default function DisposisiDetailContainer() {
       }, 1500);
       notify({
         type: "success",
-        notifyTitle: "Berhasil",
-        notifyContent: "Disposisi berhasil dibuat",
+        notifyTitle: "Success!",
+        notifyContent: "Disposisi has been successfully created.",
       });
     } catch (error) {
       if (error instanceof Error) {
         notify({
           type: "error",
-          notifyTitle: "Gagal!",
-          notifyContent: "Terjadi kesalahan saat membuat disposisi",
+          notifyTitle: "Error!",
+          notifyContent: getErrorMessage(error as Error),
         });
       }
     }
@@ -236,7 +244,7 @@ export default function DisposisiDetailContainer() {
       </article>
       {/* no. agenda, no surat, tanggal surat, perihal, jumlah lampiran */}
       <article>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-5 mt-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-0 md:gap-5 mt-2">
           <div className="flex flex-col items-start gap-1 p-2 rounded-lg w-fit">
             <Text strong>No. Agenda</Text>
             <Text>{letterDetails?.Surat_Masuk?.[0]?.no_agenda}</Text>

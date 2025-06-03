@@ -5,12 +5,14 @@ import { useForm } from "antd/es/form/Form";
 import { ColumnsType } from "antd/lib/table";
 
 // Hooks and Store
+import useAuthStore from "../../../store/api/useAuthStore";
 import useSearchStore from "../../../store/useSearch";
 import useModalStore from "../../../store/useModal";
 import useTypeStore from "../../../store/api/useTypeStore";
 import useNotify from "../../../hooks/useNotify";
 import { transformData } from "../../../libs/utils/transformData";
 import { filterData } from "../../../libs/utils/filterData";
+import { getErrorMessage } from "../../../libs/utils/errorHandler";
 
 // Components
 import TableData from "../table/TableData";
@@ -23,7 +25,6 @@ import DefaultModal from "../modals/DefaultModal";
 // Icons
 import { BiEdit, BiPlus } from "react-icons/bi";
 import { TbTrash } from "react-icons/tb";
-import useAuthStore from "../../../store/api/useAuthStore";
 
 interface TypeData {
   key: React.Key;
@@ -71,8 +72,8 @@ export default function TypeContainer() {
 
       notify({
         type: "success",
-        notifyTitle: "Berhasil",
-        notifyContent: "Data berhasil diperbarui.",
+        notifyTitle: "Success!",
+        notifyContent: "Data has been successfully updated.",
       });
     } else {
       await addData(values);
@@ -80,8 +81,8 @@ export default function TypeContainer() {
 
       notify({
         type: "success",
-        notifyTitle: "Berhasil",
-        notifyContent: "Data berhasil ditambahkan.",
+        notifyTitle: "Success!",
+        notifyContent: "Data has been successfully added.",
       });
     }
     closeModal();
@@ -92,9 +93,9 @@ export default function TypeContainer() {
   const handleDelete = (id: number) => {
     Modal.confirm({
       title: "Hapus Jenis Surat",
-      content: "Apakah anda yakin ingin menghapus jenis surat ini?",
-      okText: "Hapus",
-      cancelText: "Batal",
+      content: "Are you sure you want to delete this type?",
+      okText: "Delete",
+      cancelText: "Cancel",
       onOk: async () => {
         try {
           await deleteData(id);
@@ -103,14 +104,14 @@ export default function TypeContainer() {
           // Show notification
           notify({
             type: "success",
-            notifyTitle: "Berhasil!",
-            notifyContent: "Data berhasil dihapus.",
+            notifyTitle: "Success!",
+            notifyContent: "Data has been successfully deleted.",
           });
         } catch (error) {
           notify({
             type: "error",
             notifyTitle: "Error!",
-            notifyContent: (error as Error).message,
+            notifyContent: getErrorMessage(error as Error),
           });
         }
       },

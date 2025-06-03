@@ -5,12 +5,14 @@ import { useForm } from "antd/es/form/Form";
 import { ColumnsType } from "antd/lib/table";
 
 // Hooks and Store
+import useAuthStore from "../../../store/api/useAuthStore";
 import useSearchStore from "../../../store/useSearch";
 import useModalStore from "../../../store/useModal";
 import useCategoryStore from "../../../store/api/useCategoryStore";
 import useNotify from "../../../hooks/useNotify";
 import { transformData } from "../../../libs/utils/transformData";
 import { filterData } from "../../../libs/utils/filterData";
+import { getErrorMessage } from "../../../libs/utils/errorHandler";
 
 // Components
 import TableData from "../table/TableData";
@@ -23,7 +25,6 @@ import DefaultModal from "../modals/DefaultModal";
 // Icons
 import { BiEdit, BiPlus } from "react-icons/bi";
 import { TbTrash } from "react-icons/tb";
-import useAuthStore from "../../../store/api/useAuthStore";
 
 interface CategoryData {
   key: React.Key;
@@ -71,8 +72,8 @@ export default function CategoryContainer() {
 
       notify({
         type: "success",
-        notifyTitle: "Berhasil",
-        notifyContent: "Data berhasil diperbarui.",
+        notifyTitle: "Success!",
+        notifyContent: "Data has been successfully updated.",
       });
     } else {
       await addData(values);
@@ -80,8 +81,8 @@ export default function CategoryContainer() {
 
       notify({
         type: "success",
-        notifyTitle: "Berhasil",
-        notifyContent: "Data berhasil ditambahkan.",
+        notifyTitle: "Success!",
+        notifyContent: "Data has been successfully added.",
       });
     }
     closeModal();
@@ -91,10 +92,10 @@ export default function CategoryContainer() {
 
   const handleDelete = (id: number) => {
     Modal.confirm({
-      title: "Hapus Kategori Surat",
-      content: "Apakah anda yakin ingin menghapus kategori surat ini?",
-      okText: "Hapus",
-      cancelText: "Batal",
+      title: "Delete Letter Category",
+      content: "Are you sure you want to delete this category?",
+      okText: "Delete",
+      cancelText: "Cancel",
       onOk: async () => {
         try {
           await deleteData(id);
@@ -103,14 +104,14 @@ export default function CategoryContainer() {
           // Show notification
           notify({
             type: "success",
-            notifyTitle: "Berhasil!",
-            notifyContent: "Data berhasil dihapus.",
+            notifyTitle: "Success!",
+            notifyContent: "Data has been successfully deleted.",
           });
         } catch (error) {
           notify({
             type: "error",
             notifyTitle: "Error!",
-            notifyContent: (error as Error).message,
+            notifyContent: getErrorMessage(error as Error),
           });
         }
       },

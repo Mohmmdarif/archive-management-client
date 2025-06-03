@@ -1,15 +1,22 @@
+// Libraries
 import { useEffect, useMemo, useRef } from "react";
-import useUserManagementStore from "../../../store/api/useUserManagementStore";
-import useAuthStore from "../../../store/api/useAuthStore";
-import useNotify from "../../../hooks/useNotify";
-import { TbCircleDashedLetterM, TbCircleDashedLetterK, TbCircleDashedLetterD } from "react-icons/tb";
-import SubHeader from "../headers/SubHeader";
-import TableData from "../table/TableData";
+import dayjs from "dayjs";
 import { ColumnsType } from "antd/es/table";
 import { Badge } from "antd";
+
+// Hooks and Store
+import useAuthStore from "../../../store/api/useAuthStore";
 import useDashboardStore from "../../../store/api/useDashboardStore";
-import dayjs from "dayjs";
 import useClassifierStore from "../../../store/api/useClassifierStore";
+import useUserManagementStore from "../../../store/api/useUserManagementStore";
+import useNotify from "../../../hooks/useNotify";
+
+// Components
+import SubHeader from "../headers/SubHeader";
+import TableData from "../table/TableData";
+
+// Icons
+import { TbCircleDashedLetterM, TbCircleDashedLetterK, TbCircleDashedLetterD } from "react-icons/tb";
 
 interface LetterDetails {
   id: string;
@@ -46,8 +53,8 @@ export default function DashboardContainer() {
       hasShownNotification.current = true;
       notify({
         type: "success",
-        notifyTitle: "Login Berhasil!",
-        notifyContent: "Kamu berhasil login ke dalam sistem",
+        notifyTitle: "Login Success!",
+        notifyContent: "You have successfully logged into the system.",
       });
 
       clearIsLoggedIn();
@@ -85,7 +92,7 @@ export default function DashboardContainer() {
       title: "Surat Disposisi",
       count: countDataDisposisi,
       icon: <TbCircleDashedLetterD size={60} />,
-      rolesAllowed: [1, 3, 5],
+      rolesAllowed: [1, 2, 3, 5],
     }
   ];
 
@@ -102,7 +109,7 @@ export default function DashboardContainer() {
       title: "No",
       dataIndex: "no",
       key: "no",
-      width: 80,
+      width: 60,
       align: "center",
     },
     {
@@ -115,12 +122,13 @@ export default function DashboardContainer() {
       dataIndex: "perihal_surat",
       key: "perihal_surat",
       width: 300,
-      render: (text) => <span className="text-ellipsis line-clamp-1">{text}</span>,
+      render: (text) => <span className="text-ellipsis line-clamp-2">{text}</span>,
     },
     {
       title: "Tanggal Surat",
       dataIndex: "tanggal_surat",
       key: "tanggal_surat",
+      width: 200,
       render: (tanggal) =>
         tanggal ? dayjs(tanggal).format("DD MMMM YYYY") : "-",
     },
@@ -128,13 +136,15 @@ export default function DashboardContainer() {
       title: "Pengirim",
       dataIndex: "pengirim_surat",
       key: "pengirim_surat",
+      width: 150,
+      render: (text) => <span className="text-ellipsis line-clamp-2">{text}</span>,
     },
     {
       title: "Penerima",
       dataIndex: "penerima_surat",
       key: "penerima_surat",
-      width: 200,
-      render: (text) => <span className="text-ellipsis line-clamp-1">{text}</span>,
+      width: 150,
+      render: (text) => <span className="text-ellipsis line-clamp-2">{text}</span>,
     },
     {
       title: "Jenis Surat",
@@ -160,6 +170,7 @@ export default function DashboardContainer() {
       title: "Tanggal Diarsipkan",
       dataIndex: "created_at",
       key: "created_at",
+      width: 200,
       render: (tanggal) =>
         tanggal ? dayjs(tanggal).format("DD MMMM YYYY") : "-",
     },
@@ -176,9 +187,9 @@ export default function DashboardContainer() {
         <span className="font-semibold">{userMe?.nama_lengkap}</span>
       </span>
 
-      <section className="h-full">
+      <section className="h-auto pb-4 md:pb-0">
         {/* Dashboard View Data Surat */}
-        <div className={`grid grid-cols-1  gap-4 mt-4 ${[2, 4].includes(roleId) ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
+        <div className="grid grid-cols-1  gap-4 mt-4 md:grid-cols-3">
           {datas.map((data, index) => (
             <div className={`bg-white shadow-xs h-36 rounded-lg p-5 ${data.rolesAllowed?.includes(roleId) ? "" : "hidden"}`} key={index}>
               <div className="flex flex-col justify-between h-full">
@@ -195,13 +206,13 @@ export default function DashboardContainer() {
         </div>
 
         {/* Data Surat hari ini */}
-        <div className="bg-white w-full h-full flex flex-col p-5 rounded-lg mt-5">
+        <div className="bg-white w-full h-full flex flex-col p-5 rounded-lg mt-5 flex-grow min-h-0">
 
           {/* Sub Header */}
           <SubHeader subHeaderTitle="Data Surat Hari Ini" />
 
           {/* Table Data */}
-          <div className="overflow-y-auto flex-grow mt-5"
+          <div className="overflow-y-hidden flex-grow mt-5 min-h-0"
             style={{
               maxHeight: "calc(100vh - 250px)",
             }}
@@ -213,6 +224,6 @@ export default function DashboardContainer() {
           </div>
         </div>
       </section>
-    </section>
+    </section >
   );
 }

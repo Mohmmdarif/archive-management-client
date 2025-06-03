@@ -1,26 +1,31 @@
-import { Alert, Badge, Flex, Modal, Space, Tag } from "antd";
-
-import TableData from "../table/TableData";
-import ButtonIcon from "../buttons/ButtonIcon";
-
-import { BiEdit, BiPlus } from "react-icons/bi";
-import { TbTrash } from "react-icons/tb";
-import { ColumnsType } from "antd/es/table";
-import SubHeader from "../headers/SubHeader";
-import Search from "../search/Search";
-import DefaultModal from "../modals/DefaultModal";
-import useModalStore from "../../../store/useModal";
+// Libraries
 import { useEffect, useState } from "react";
-import UserManagementForm from "../forms/UserManagementForm";
+import { Alert, Badge, Flex, Modal, Space, Tag } from "antd";
 import { useForm } from "antd/es/form/Form";
+import { ColumnsType } from "antd/es/table";
+
+// Hooks and Store
+import useAuthStore from "../../../store/api/useAuthStore";
+import useModalStore from "../../../store/useModal";
+import UserManagementForm from "../forms/UserManagementForm";
 import useUserManagementStore from "../../../store/api/useUserManagementStore";
+import useSearchStore from "../../../store/useSearch";
+import useNotify from "../../../hooks/useNotify";
 import { transformData } from "../../../libs/utils/transformData";
 import { filterData } from "../../../libs/utils/filterData";
-import useSearchStore from "../../../store/useSearch";
 import { getRole } from "../../../libs/utils/getRole";
-import useNotify from "../../../hooks/useNotify";
 import { getErrorMessage } from "../../../libs/utils/errorHandler";
-import useAuthStore from "../../../store/api/useAuthStore";
+
+// Components
+import Search from "../search/Search";
+import SubHeader from "../headers/SubHeader";
+import TableData from "../table/TableData";
+import ButtonIcon from "../buttons/ButtonIcon";
+import DefaultModal from "../modals/DefaultModal";
+
+// Icons
+import { BiEdit, BiPlus } from "react-icons/bi";
+import { TbTrash } from "react-icons/tb";
 
 interface UserData {
   key: React.Key;
@@ -208,6 +213,7 @@ export default function UserManagementContainer() {
       title: "No",
       dataIndex: "no",
       key: "no",
+      width: 60,
       align: "center",
     },
     {
@@ -307,8 +313,8 @@ export default function UserManagementContainer() {
 
       notify({
         type: "success",
-        notifyTitle: "Berhasil",
-        notifyContent: "Data berhasil ditambahkan.",
+        notifyTitle: "Success!",
+        notifyContent: "Data has been successfully added.",
       });
     } catch (error) {
       notify({
@@ -330,8 +336,8 @@ export default function UserManagementContainer() {
       }
       notify({
         type: "success",
-        notifyTitle: "Berhasil",
-        notifyContent: "Data berhasil diperbarui.",
+        notifyTitle: "Success!",
+        notifyContent: "Data has been successfully updated.",
       });
     } catch (error) {
       notify({
@@ -350,9 +356,9 @@ export default function UserManagementContainer() {
     e.stopPropagation();
     Modal.confirm({
       title: "Hapus User",
-      content: "Apakah anda yakin ingin menghapus user ini?",
-      okText: "Hapus",
-      cancelText: "Batal",
+      content: "Are you sure you want to delete this user?",
+      okText: "Delete",
+      cancelText: "Cancel",
       onOk: async () => {
         try {
           await deleteData(id);
@@ -360,14 +366,14 @@ export default function UserManagementContainer() {
           // Show notification
           notify({
             type: "success",
-            notifyTitle: "Berhasil!",
-            notifyContent: "Data berhasil dihapus.",
+            notifyTitle: "Success!",
+            notifyContent: "Data has been successfully deleted.",
           });
         } catch (error) {
           notify({
             type: "error",
             notifyTitle: "Error!",
-            notifyContent: (error as Error).message,
+            notifyContent: getErrorMessage(error as Error),
           });
         }
       },

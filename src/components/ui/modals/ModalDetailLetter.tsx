@@ -1,4 +1,16 @@
-import { Modal, Row, Col, Descriptions, Button, Space, Input, DatePicker, Select, Form, Alert } from "antd";
+import {
+  Modal,
+  Row,
+  Col,
+  Descriptions,
+  Button,
+  Space,
+  Input,
+  DatePicker,
+  Select,
+  Form,
+  Alert,
+} from "antd";
 import { useEffect, useState } from "react";
 import { IoEyeOutline } from "react-icons/io5";
 import { MdOutlineFileDownload } from "react-icons/md";
@@ -87,7 +99,11 @@ const labelMapping = {
   "surat keluar": 2,
 };
 
-export default function ModalDetailLetter({ visible, onClose, data }: DetailSuratProps) {
+export default function ModalDetailLetter({
+  visible,
+  onClose,
+  data,
+}: DetailSuratProps) {
   const [form] = useForm();
   const { notify, contextHolder } = useNotify();
   const { classifierData, fetchClassifierData } = useClassifierStore();
@@ -101,8 +117,11 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
   const [classification, setClassification] = useState<string | number>(
     data[0]?.data?.classification[0]?.Classify
   );
-  const [showClassificationWarning, setShowClassificationWarning] = useState(false);
-  const [predictedClassification, setPredictedClassification] = useState<number | null>(null);
+  const [showClassificationWarning, setShowClassificationWarning] =
+    useState(false);
+  const [predictedClassification, setPredictedClassification] = useState<
+    number | null
+  >(null);
 
   const roleId = getRole();
 
@@ -112,13 +131,20 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
     fetchCriteriaData();
     fetchClassifierData();
     fetchUserManagementData();
-  }, [fetchTypeData, fetchCategoryData, fetchCriteriaData, fetchClassifierData, fetchUserManagementData]);
+  }, [
+    fetchTypeData,
+    fetchCategoryData,
+    fetchCriteriaData,
+    fetchClassifierData,
+    fetchUserManagementData,
+  ]);
 
   useEffect(() => {
     if (visible && data.length > 0 && userMe) {
       const entity = data[0].data.entities;
       const classification = data[0].data.classification[0];
-      const mappedClassification = labelMapping[classification?.Classify as keyof typeof labelMapping];
+      const mappedClassification =
+        labelMapping[classification?.Classify as keyof typeof labelMapping];
       setPredictedClassification(
         typeof mappedClassification === "number" ? mappedClassification : null
       );
@@ -132,12 +158,19 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
         created_at: dayjs(),
         pengarsip: userMe.nama_lengkap,
         no_surat: entity.find((e) => e.label === "NOMOR_SURAT")?.text ?? "",
-        tanggal_surat: entity.find((e) => e.label === "TANGGAL_SURAT")?.text ? dayjs(entity.find((e) => e.label === "TANGGAL_SURAT")?.text) : null,
+        tanggal_surat: entity.find((e) => e.label === "TANGGAL_SURAT")?.text
+          ? dayjs(entity.find((e) => e.label === "TANGGAL_SURAT")?.text)
+          : null,
         classification: mappedClassification ?? "",
         perihal_surat: entity.find((e) => e.label === "PERIHAL")?.text ?? "",
         id_kategori_surat: "",
-        id_kriteria_surat: criteriaData.find((criteria) => criteria.nama_kriteria.toLowerCase() === classification?.Criteria)?.id ?? "",
-        id_jenis_surat: typeData.find((type) => type.nama_jenis === "Biasa")?.id ?? "",
+        id_kriteria_surat:
+          criteriaData.find(
+            (criteria) =>
+              criteria.nama_kriteria.toLowerCase() === classification?.Criteria
+          )?.id ?? "",
+        id_jenis_surat:
+          typeData.find((type) => type.nama_jenis === "Biasa")?.id ?? "",
         pengirim_surat: "",
         penerima_surat: "",
         filename: data[0].publicId,
@@ -147,14 +180,27 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
       setClassification(mappedClassification ?? "");
       setShowClassificationWarning(false);
     }
-  }, [visible, data, form, classifierData, criteriaData, typeData, fetchUserManagementData, userMe]);
+  }, [
+    visible,
+    data,
+    form,
+    classifierData,
+    criteriaData,
+    typeData,
+    fetchUserManagementData,
+    userMe,
+  ]);
 
-  const handleValuesChange = (changedValues: Partial<Record<string, unknown>>) => {
+  const handleValuesChange = (
+    changedValues: Partial<Record<string, unknown>>
+  ) => {
     if (changedValues.classification) {
       const newClassification = changedValues.classification as string | number;
 
       // Perbarui state classification menggunakan mapping
-      setClassification(labelMapping[newClassification as keyof typeof labelMapping]);
+      setClassification(
+        labelMapping[newClassification as keyof typeof labelMapping]
+      );
 
       // Tampilkan warning jika user mengubah dari prediksi awal
       if (
@@ -167,11 +213,17 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
       }
 
       // Reset atau sembunyikan input tertentu berdasarkan classification
-      if (labelMapping[newClassification as keyof typeof labelMapping] === "surat masuk") {
+      if (
+        labelMapping[newClassification as keyof typeof labelMapping] ===
+        "surat masuk"
+      ) {
         form.setFieldsValue({
           tanggal_kirim: null, // Reset Tgl. Kirim Surat jika classification adalah "surat masuk"
         });
-      } else if (labelMapping[newClassification as keyof typeof labelMapping] === "surat keluar") {
+      } else if (
+        labelMapping[newClassification as keyof typeof labelMapping] ===
+        "surat keluar"
+      ) {
         form.setFieldsValue({
           no_agenda: null, // Reset No. Agenda jika classification adalah "surat keluar"
           tanggal_terima: null,
@@ -183,9 +235,10 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
 
   const handleSave = async (values: LetterDetails) => {
     try {
-      const idTypeSurat = typeof values.classification === "number"
-        ? values.classification // Jika sudah number, gunakan langsung
-        : labelMapping[values.classification as keyof typeof labelMapping];
+      const idTypeSurat =
+        typeof values.classification === "number"
+          ? values.classification // Jika sudah number, gunakan langsung
+          : labelMapping[values.classification as keyof typeof labelMapping];
 
       const payload = {
         ...values,
@@ -197,7 +250,8 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
         notify({
           type: "error",
           notifyTitle: "Error!",
-          notifyContent: "You do not have permission to archive incoming letters.",
+          notifyContent:
+            "You do not have permission to archive incoming letters.",
         });
         return;
       }
@@ -207,7 +261,8 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
         notify({
           type: "error",
           notifyTitle: "Error!",
-          notifyContent: "You do not have permission to archive outgoing letters.",
+          notifyContent:
+            "You do not have permission to archive outgoing letters.",
         });
         return;
       }
@@ -256,7 +311,6 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
     }
   };
 
-
   const handleCancelModal = () => {
     Modal.confirm({
       title: "Confirmation",
@@ -269,7 +323,7 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
         onClose();
       },
     });
-  }
+  };
 
   return (
     <>
@@ -278,9 +332,7 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
       <Modal
         open={visible}
         title="Konfirmasi Detail Surat"
-        onCancel={
-          handleCancelModal
-        }
+        onCancel={handleCancelModal}
         footer={[
           <Button key="cancel" onClick={handleCancelModal}>
             Batal
@@ -298,65 +350,144 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
           onValuesChange={handleValuesChange}
         >
           <Row gutter={16} className="my-4">
-            {
-              classification === 1 || classification === "surat masuk" ? (
-                <Col span={12}>
-                  <Descriptions title="Informasi Umum" bordered column={1} size="small" labelStyle={{ width: "35%", fontWeight: "revert" }}>
-                    <Descriptions.Item label="No. Agenda">
-                      <Form.Item name="no_agenda" noStyle rules={[{ required: true, message: "No. Agenda wajib diisi" }]}>
-                        <Input />
-                      </Form.Item>
-                    </Descriptions.Item>
+            {classification === 1 || classification === "surat masuk" ? (
+              <Col span={12}>
+                <Descriptions
+                  title="Informasi Umum"
+                  bordered
+                  column={1}
+                  size="small"
+                  labelStyle={{ width: "35%", fontWeight: "revert" }}
+                >
+                  <Descriptions.Item label="No. Agenda">
+                    <Form.Item
+                      name="no_agenda"
+                      noStyle
+                      rules={[
+                        { required: true, message: "No. Agenda wajib diisi" },
+                      ]}
+                    >
+                      <Input />
+                    </Form.Item>
+                  </Descriptions.Item>
 
-                    <Descriptions.Item label="Tgl. Diterima">
-                      <Form.Item name="tanggal_terima" noStyle rules={[{ required: true, message: "Tgl. Diterima wajib diisi" }]}>
-                        <DatePicker format="DD MMMM YYYY" className="w-full" />
-                      </Form.Item>
-                    </Descriptions.Item>
+                  <Descriptions.Item label="Tgl. Diterima">
+                    <Form.Item
+                      name="tanggal_terima"
+                      noStyle
+                      rules={[
+                        {
+                          required: true,
+                          message: "Tgl. Diterima wajib diisi",
+                        },
+                      ]}
+                    >
+                      <DatePicker format="DD MMMM YYYY" className="w-full" />
+                    </Form.Item>
+                  </Descriptions.Item>
 
-                    <Descriptions.Item label="Lampiran">
-                      <Form.Item name="jumlah_lampiran" noStyle rules={[{ required: true, message: "Jumlah Lampiran wajib diisi" }]}>
-                        <Input />
-                      </Form.Item>
-                    </Descriptions.Item>
-                  </Descriptions>
-                </Col>
-              ) : null
-            }
+                  <Descriptions.Item label="Lampiran">
+                    <Form.Item
+                      name="jumlah_lampiran"
+                      noStyle
+                      rules={[
+                        {
+                          required: true,
+                          message: "Jumlah Lampiran wajib diisi",
+                        },
+                      ]}
+                    >
+                      <Input />
+                    </Form.Item>
+                  </Descriptions.Item>
+                </Descriptions>
+              </Col>
+            ) : null}
             <Col span={12}>
-              <Descriptions title="Detail User" bordered column={1} size="small" labelStyle={{ width: "40%", fontWeight: "revert" }}>
+              <Descriptions
+                title="Detail User"
+                bordered
+                column={1}
+                size="small"
+                labelStyle={{ width: "40%", fontWeight: "revert" }}
+              >
                 <Descriptions.Item label="Tgl. Diarsipkan">
-                  <Form.Item name="created_at" noStyle rules={[{ required: true, message: "Tgl. Diarsipkan wajib diisi" }]}>
-                    <DatePicker format="DD MMMM YYYY" className="w-full" variant="borderless" value={dayjs(form?.getFieldValue("created_at"))?.isValid()
-                      ? dayjs(form?.getFieldValue("created_at")).format("DD MMMM YYYY")
-                      : "-"} disabled />
+                  <Form.Item
+                    name="created_at"
+                    noStyle
+                    rules={[
+                      {
+                        required: true,
+                        message: "Tgl. Diarsipkan wajib diisi",
+                      },
+                    ]}
+                  >
+                    <DatePicker
+                      format="DD MMMM YYYY"
+                      className="w-full"
+                      variant="borderless"
+                      value={
+                        dayjs(form?.getFieldValue("created_at"))?.isValid()
+                          ? dayjs(form?.getFieldValue("created_at")).format(
+                            "DD MMMM YYYY"
+                          )
+                          : "-"
+                      }
+                      disabled
+                    />
                   </Form.Item>
                 </Descriptions.Item>
                 <Descriptions.Item label="Pengarsip">
-                  <Form.Item name="pengarsip" noStyle rules={[{ required: true, message: "Pengarsip wajib diisi" }]}>
-                    <Input variant="borderless" value={isLoading ? "-" : form?.getFieldValue("pengarsip")} readOnly />
+                  <Form.Item
+                    name="pengarsip"
+                    noStyle
+                    rules={[
+                      { required: true, message: "Pengarsip wajib diisi" },
+                    ]}
+                  >
+                    <Input
+                      variant="borderless"
+                      value={isLoading ? "-" : form?.getFieldValue("pengarsip")}
+                      readOnly
+                    />
                   </Form.Item>
-                  {
-
-                  }</Descriptions.Item>
+                  { }
+                </Descriptions.Item>
               </Descriptions>
             </Col>
           </Row>
 
-
-          <Descriptions title="Informasi Detail Surat" bordered column={1} size="small" labelStyle={{ width: "30%", fontWeight: "revert" }}>
+          <Descriptions
+            title="Informasi Detail Surat"
+            bordered
+            column={1}
+            size="small"
+            labelStyle={{ width: "30%", fontWeight: "revert" }}
+          >
             <Descriptions.Item label="No. Surat">
-              <Form.Item name="no_surat" noStyle rules={[{ required: true, message: "No. Surat wajib diisi" }]}>
+              <Form.Item
+                name="no_surat"
+                noStyle
+                rules={[{ required: true, message: "No. Surat wajib diisi" }]}
+              >
                 <Input />
               </Form.Item>
             </Descriptions.Item>
             <Descriptions.Item label="Tgl. Surat">
-              <Form.Item name="tanggal_surat" noStyle rules={[{ required: true, message: "Tgl. Surat wajib diisi" }]}>
+              <Form.Item
+                name="tanggal_surat"
+                noStyle
+                rules={[{ required: true, message: "Tgl. Surat wajib diisi" }]}
+              >
                 <DatePicker format="DD MMMM YYYY" className="w-full" />
               </Form.Item>
             </Descriptions.Item>
             <Descriptions.Item label="Tipe Surat">
-              <Form.Item name="classification" noStyle rules={[{ required: true, message: "Tipe Surat wajib diisi" }]}>
+              <Form.Item
+                name="classification"
+                noStyle
+                rules={[{ required: true, message: "Tipe Surat wajib diisi" }]}
+              >
                 <Select className="w-full capitalize">
                   {classifierData.map((type) => (
                     <Option key={type.id} value={type.id}>
@@ -375,12 +506,22 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
               )}
             </Descriptions.Item>
             <Descriptions.Item label="Perihal">
-              <Form.Item name="perihal_surat" noStyle rules={[{ required: true, message: "Perihal Surat wajib diisi" }]}>
+              <Form.Item
+                name="perihal_surat"
+                noStyle
+                rules={[
+                  { required: true, message: "Perihal Surat wajib diisi" },
+                ]}
+              >
                 <Input />
               </Form.Item>
             </Descriptions.Item>
             <Descriptions.Item label="Jenis Surat">
-              <Form.Item name="id_jenis_surat" noStyle rules={[{ required: true, message: "Jenis Surat wajib diisi" }]}>
+              <Form.Item
+                name="id_jenis_surat"
+                noStyle
+                rules={[{ required: true, message: "Jenis Surat wajib diisi" }]}
+              >
                 <Select className="w-full">
                   {typeData.map((type) => (
                     <Option key={type.id} value={type.id}>
@@ -391,7 +532,13 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
               </Form.Item>
             </Descriptions.Item>
             <Descriptions.Item label="Kriteria Surat">
-              <Form.Item name="id_kriteria_surat" noStyle rules={[{ required: true, message: "Kriteria Surat wajib diisi" }]}>
+              <Form.Item
+                name="id_kriteria_surat"
+                noStyle
+                rules={[
+                  { required: true, message: "Kriteria Surat wajib diisi" },
+                ]}
+              >
                 <Select className="w-full capitalize">
                   {criteriaData.map((criteria) => (
                     <Option key={criteria.id} value={criteria.id}>
@@ -401,54 +548,91 @@ export default function ModalDetailLetter({ visible, onClose, data }: DetailSura
                 </Select>
               </Form.Item>
             </Descriptions.Item>
-            {
-              classification === 1 || classification === "surat masuk" ? (
-                <Descriptions.Item label="Kategori Surat">
-                  <Form.Item name="id_kategori_surat" noStyle rules={[{ required: true, message: "Kategori Surat wajib diisi" }]}>
-                    <Select className="w-full">
-                      {categoryData.map((category) => (
-                        <Option key={category.id} value={category.id}>
-                          {category.nama_kategori}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                </Descriptions.Item>
-              ) : null
-            }
+            {classification === 1 || classification === "surat masuk" ? (
+              <Descriptions.Item label="Kategori Surat">
+                <Form.Item
+                  name="id_kategori_surat"
+                  noStyle
+                  rules={[
+                    { required: true, message: "Kategori Surat wajib diisi" },
+                  ]}
+                >
+                  <Select className="w-full">
+                    {categoryData.map((category) => (
+                      <Option key={category.id} value={category.id}>
+                        {category.nama_kategori}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Descriptions.Item>
+            ) : null}
             <Descriptions.Item label="Pengirim Surat">
-              <Form.Item name="pengirim_surat" noStyle rules={[{ required: true, message: "Pengirim Surat wajib diisi" }]}>
+              <Form.Item
+                name="pengirim_surat"
+                noStyle
+                rules={[
+                  { required: true, message: "Pengirim Surat wajib diisi" },
+                ]}
+              >
                 <Input />
               </Form.Item>
             </Descriptions.Item>
             <Descriptions.Item label="Penerima Surat">
-              <Form.Item name="penerima_surat" noStyle rules={[{ required: true, message: "Penerima Surat wajib diisi" }]}>
+              <Form.Item
+                name="penerima_surat"
+                noStyle
+                rules={[
+                  { required: true, message: "Penerima Surat wajib diisi" },
+                ]}
+              >
                 <Input />
               </Form.Item>
             </Descriptions.Item>
-            {
-              classification === 2 || classification === "surat keluar" ? (
-                <Descriptions.Item label="Tgl. Kirim Surat">
-                  <Form.Item name="tanggal_kirim" noStyle rules={[{ required: true, message: "Tgl. Kirim Surat wajib diisi" }]}>
-                    <DatePicker format="DD MMMM YYYY" className="w-full" />
-                  </Form.Item>
-                </Descriptions.Item>
-              ) : null
-            }
+            {classification === 2 || classification === "surat keluar" ? (
+              <Descriptions.Item label="Tgl. Kirim Surat">
+                <Form.Item
+                  name="tanggal_kirim"
+                  noStyle
+                  rules={[
+                    { required: true, message: "Tgl. Kirim Surat wajib diisi" },
+                  ]}
+                >
+                  <DatePicker format="DD MMMM YYYY" className="w-full" />
+                </Form.Item>
+              </Descriptions.Item>
+            ) : null}
             <Descriptions.Item label="File Path" className="hidden">
               <Form.Item name="path_file" noStyle>
-                <Input type="hidden" value={data[0]?.cloudinaryUrl} readOnly variant="borderless" />
+                <Input
+                  type="hidden"
+                  value={data[0]?.cloudinaryUrl}
+                  readOnly
+                  variant="borderless"
+                />
               </Form.Item>
             </Descriptions.Item>
             <Descriptions.Item label="File Name" className="hidden">
               <Form.Item name="filename" noStyle>
-                <Input type="hidden" value={data[0]?.publicId} readOnly variant="borderless" />
+                <Input
+                  type="hidden"
+                  value={data[0]?.publicId}
+                  readOnly
+                  variant="borderless"
+                />
               </Form.Item>
             </Descriptions.Item>
 
             <Descriptions.Item label="File">
               <Space>
-                <Button type="primary" size="small" onClick={() => data[0]?.cloudinaryUrl && window.open(data[0]?.cloudinaryUrl, "_blank")}>
+                <Button
+                  type="primary"
+                  size="small"
+                  onClick={() =>
+                    data[0]?.cloudinaryUrl &&
+                    window.open(data[0]?.cloudinaryUrl, "_blank")
+                  }
+                >
                   <IoEyeOutline />
                   Pratinjau
                 </Button>

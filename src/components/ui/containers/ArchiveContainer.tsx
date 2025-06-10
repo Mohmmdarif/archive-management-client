@@ -78,6 +78,7 @@ export default function ArchiveContainer() {
     addData,
     fetchSuratData,
     deleteData,
+    deleteCloudinaryFile,
   } = useLetterStore();
   const { notify, contextHolder } = useNotify();
   const { isModalOpen, closeModal, openModal } = useModalStore();
@@ -131,7 +132,7 @@ export default function ArchiveContainer() {
     ["no_surat", "perihal_surat", "pengirim_surat", "penerima_surat"]
   );
 
-  const handleDelete = async (id: string, e: React.MouseEvent) => {
+  const handleDelete = async (id: string, filename: string, e: React.MouseEvent) => {
     e.stopPropagation();
 
     Modal.confirm({
@@ -141,6 +142,7 @@ export default function ArchiveContainer() {
       cancelText: "Cancel",
       onOk: async () => {
         try {
+          deleteCloudinaryFile(filename);
           await deleteData(id);
           await fetchSuratData();
           // Show notification
@@ -491,7 +493,7 @@ export default function ArchiveContainer() {
                     tooltipTitle="Delete"
                     shape="circle"
                     icon={<TbTrash />}
-                    onClick={(e) => record.id && handleDelete(record.id, e)}
+                    onClick={(e) => record.id && handleDelete(record.id, record.filename, e)}
                   />
                 </>
               )}

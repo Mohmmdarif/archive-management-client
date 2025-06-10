@@ -110,7 +110,7 @@ export default function ModalDetailLetter({
   const { typeData, fetchTypeData } = useTypeStore();
   const { categoryData, fetchCategoryData } = useCategoryStore();
   const { criteriaData, fetchCriteriaData } = useCriteriaStore();
-  const { savedConfirmedData, fetchSuratData } = useLetterStore();
+  const { savedConfirmedData, fetchSuratData, deleteCloudinaryFile } = useLetterStore();
   const { userMe, isLoading, fetchUserManagementData } =
     useUserManagementStore();
   const { getRole } = useAuthStore();
@@ -318,6 +318,7 @@ export default function ModalDetailLetter({
       okText: "Yes",
       cancelText: "No",
       onOk: () => {
+        deleteCloudinaryFile(data[0]?.publicId);
         form.resetFields();
         setClassification("");
         onClose();

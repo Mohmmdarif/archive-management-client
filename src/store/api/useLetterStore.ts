@@ -73,11 +73,12 @@ interface LetterStore {
   // Add data with file upload
   addData: (newData: { [key: string]: File; file: File }) => Promise<void>;
   savedConfirmedData: (payload: LetterDetails) => Promise<void>;
-  deleteData: (id: string) => Promise<void>;
   updateData: (
     id: string,
     updatedData: Partial<LetterDetails>
   ) => Promise<void>;
+  deleteCloudinaryFile: (publicId: string) => Promise<void>;
+  deleteData: (id: string) => Promise<void>;
 }
 
 const getToken = () => useAuthStore.getState().token;
@@ -189,28 +190,6 @@ const useLetterStore = create<LetterStore>((set) => ({
     }
   },
 
-  deleteData: async (id: string) => {
-    set({ isLoading: true, error: null });
-    try {
-      await axiosInstance.delete(`/surat/${id}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${getToken()}`,
-        },
-      });
-      set((state) => ({
-        letterDetails:
-          state.letterDetails.id === id
-            ? ({} as LetterDetails)
-            : state.letterDetails,
-        isLoading: false,
-      }));
-    } catch (error) {
-      set({ error: getErrorMessage(error), isLoading: false });
-      throw new Error(getErrorMessage(error));
-    }
-  },
-
   updateData: async (id: string, updatedData: Partial<LetterDetails>) => {
     set({ isLoading: true, error: null });
     try {
@@ -224,6 +203,41 @@ const useLetterStore = create<LetterStore>((set) => ({
         letterDetails:
           state.letterDetails.id === id
             ? { ...state.letterDetails, ...updatedData }
+            : state.letterDetails,
+        isLoading: false,
+      }));
+    } catch (error) {
+      set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
+    }
+  },
+
+  deleteCloudinaryFile: async (publicId: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      await axiosInstance.post("/surat/delete-cloudinary-file", {
+        data: { publicId },
+      });
+      set({ isLoading: false });
+    } catch (error) {
+      set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
+    }
+  },
+
+  deleteData: async (id: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      await axiosInstance.delete(`/surat/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
+      set((state) => ({
+        letterDetails:
+          state.letterDetails.id === id
+            ? ({} as LetterDetails)
             : state.letterDetails,
         isLoading: false,
       }));

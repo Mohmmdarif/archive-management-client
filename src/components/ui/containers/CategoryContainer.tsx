@@ -124,6 +124,7 @@ export default function CategoryContainer() {
       dataIndex: "no",
       key: "no",
       align: "center",
+      width: 70,
     },
     {
       title: "Nama Kategori",

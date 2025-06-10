@@ -74,6 +74,7 @@ export default function ArchiveContainer() {
     letterData,
     letterDetails,
     isLoading,
+    isLoadingClassification,
     addData,
     fetchSuratData,
     deleteData,
@@ -582,11 +583,18 @@ export default function ArchiveContainer() {
       />
 
       {/* loading for waiting result classification */}
-      {isLoading && (
+      {isLoadingClassification && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-white bg-opacity-75 z-50 rounded-lg">
-          <Loading />
+          <div className="flex flex-col items-center">
+            {/* Loading Icon */}
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 border-solid mb-4"></div>
+            {/* Informational Text */}
+            <p className="text-xl text-gray-700 font-semibold">Sedang memproses klasifikasi...</p>
+            <p className="text-md text-gray-500 mt-2">Harap tunggu beberapa saat.</p>
+          </div>
         </div>
       )}
+
     </section>
   );
 }

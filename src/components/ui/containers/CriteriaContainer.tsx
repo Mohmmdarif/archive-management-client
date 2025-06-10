@@ -124,6 +124,7 @@ export default function CriteriaContainer() {
       dataIndex: "no",
       key: "no",
       align: "center",
+      width: 70,
     },
     {
       title: "Nama Kriteria",

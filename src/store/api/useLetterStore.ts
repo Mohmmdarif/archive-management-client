@@ -65,6 +65,7 @@ interface LetterStore {
   letterData: LetterData[];
   letterDetails: LetterDetails;
   isLoading: boolean;
+  isLoadingClassification: boolean;
   error: string | null;
 
   fetchSuratData: () => Promise<void>;
@@ -85,6 +86,7 @@ const useLetterStore = create<LetterStore>((set) => ({
   letterData: [],
   letterDetails: {} as LetterDetails,
   isLoading: false,
+  isLoadingClassification: false,
   error: null,
 
   fetchSuratData: async () => {
@@ -123,7 +125,7 @@ const useLetterStore = create<LetterStore>((set) => ({
 
   // Add data with file upload
   addData: async (newData: { [key: string]: File; file: File }) => {
-    set({ isLoading: true, error: null });
+    set({ isLoadingClassification: true, error: null });
     try {
       // Create FormData object
       const formData = new FormData();
@@ -154,10 +156,10 @@ const useLetterStore = create<LetterStore>((set) => ({
             },
           },
         ],
-        isLoading: false,
+        isLoadingClassification: false,
       }));
     } catch (error) {
-      set({ error: getErrorMessage(error), isLoading: false });
+      set({ error: getErrorMessage(error), isLoadingClassification: false });
       throw new Error(getErrorMessage(error));
     }
   },

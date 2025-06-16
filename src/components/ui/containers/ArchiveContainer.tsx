@@ -20,7 +20,6 @@ import TableData from "../table/TableData";
 import ButtonIcon from "../buttons/ButtonIcon";
 import SubHeader from "../headers/SubHeader";
 import Search from "../search/Search";
-import Loading from "../Loading";
 import ModalDetailLetter from "../modals/ModalDetailLetter";
 import ModalEditDetailLetter from "../modals/ModalEditDetailLetter";
 

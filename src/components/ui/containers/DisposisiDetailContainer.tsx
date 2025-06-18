@@ -22,6 +22,7 @@ import useDisposisiStore from "../../../store/api/useDisposisiStore";
 import useUserManagementStore from "../../../store/api/useUserManagementStore";
 import useNotify from "../../../hooks/useNotify";
 import { getColor, getInitial } from "../../../libs/utils/randomProfile";
+import { getJabatan } from "../../../libs/utils/getRole";
 
 // Components
 import TextArea from "antd/es/input/TextArea";
@@ -74,7 +75,7 @@ export default function DisposisiDetailContainer() {
   );
 
   const isRoleDekan = userManagementData.some(
-    (user) => user.id === userId && roleId === 2 && user.jabatan === "Dekan"
+    (user) => user.id === userId && roleId === 2 && user.jabatan.toLowerCase() === "dekan"
   );
 
   // Ambil disposisi terakhir
@@ -171,12 +172,28 @@ export default function DisposisiDetailContainer() {
     }
   };
 
-  const displayName =
-    disposisiData.length > 0
-      ? disposisiData[disposisiData.length - 1]?.pengaju?.nama_lengkap || "Tidak Diketahui"
-      : roleId === 5
-        ? "Tidak Diketahui"
-        : userManagementData.find((user) => user.id === userId)?.nama_lengkap || "Tidak Diketahui";
+  const displayName = disposisiData.length > 0
+    ? {
+      nama_lengkap: disposisiData[disposisiData.length - 1]?.pengaju?.nama_lengkap || "Tidak Diketahui",
+      jabatan: disposisiData[disposisiData.length - 1]?.pengaju?.jabatan || "Tidak Diketahui"
+    }
+    : roleId === 5
+      ? {
+        nama_lengkap: "Tidak Diketahui",
+        jabatan: "Tidak Diketahui"
+      }
+      : userManagementData.find((user) => user.id === userId)
+        ? {
+          nama_lengkap: userManagementData.find((user) => user.id === userId)?.nama_lengkap || "Tidak Diketahui",
+          jabatan: userManagementData.find((user) => user.id === userId)?.jabatan || "Tidak Diketahui"
+        }
+        : {
+          nama_lengkap: "Tidak Diketahui",
+          jabatan: "Tidak Diketahui"
+        };
+
+
+
 
   const initialName = () => {
     if (disposisiData.length === 0) {
@@ -234,10 +251,10 @@ export default function DisposisiDetailContainer() {
           </div>
           <div className="flex flex-col text-left space-y-1">
             <span className="text-sm font-semibold">
-              {displayName}
+              {displayName.nama_lengkap || "Tidak Diketahui"}
             </span>
             <span className="text-xs">
-              {displayName}
+              {getJabatan(displayName.jabatan) || "Tidak Diketahui"}
             </span>
           </div>
         </div>

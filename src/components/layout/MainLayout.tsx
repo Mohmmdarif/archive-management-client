@@ -7,6 +7,7 @@ import useHeaderTitle from "../../hooks/useHeaderTitle";
 import LiveDateTime from "../ui/LiveDateTime";
 import { getColor, getInitial } from "../../libs/utils/randomProfile";
 import useAuthStore from "../../store/api/useAuthStore";
+import { getJabatan } from "../../libs/utils/getRole";
 
 const { Header, Content } = Layout;
 
@@ -53,7 +54,7 @@ export default function MainLayout() {
                 <span className="text-sm font-semibold">
                   {userMe.nama_lengkap || "[Nama Lengkap]"}
                 </span>
-                <span className="text-xs">{userMe.jabatan || "[Jabatan]"}</span>
+                <span className="text-xs">{getJabatan(userMe.jabatan) || "[Jabatan]"}</span>
               </div>
             </button>
           </section>

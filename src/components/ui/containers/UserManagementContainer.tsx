@@ -13,7 +13,7 @@ import useSearchStore from "../../../store/useSearch";
 import useNotify from "../../../hooks/useNotify";
 import { transformData } from "../../../libs/utils/transformData";
 import { filterData } from "../../../libs/utils/filterData";
-import { getRole } from "../../../libs/utils/getRole";
+import { getJabatan, getRole } from "../../../libs/utils/getRole";
 import { getErrorMessage } from "../../../libs/utils/errorHandler";
 
 // Components
@@ -180,8 +180,19 @@ export default function UserManagementContainer() {
     {
       fieldLabel: "Jabatan",
       fieldName: "jabatan",
-      fieldType: "text" as const,
-      placeholder: "Jabatan",
+      fieldType: "select" as const,
+      placeholder: "Pilih Jabatan",
+      options: [
+        { label: "Koordinator TU", value: "koordinator_tu" },
+        { label: "Dekan", value: "dekan" },
+        { label: "Wakil Dekan I", value: "wakil_dekan_1" },
+        { label: "Wakil Dekan II", value: "wakil_dekan_2" },
+        { label: "Wakil Dekan III", value: "wakil_dekan_3" },
+        { label: "Kaprodi", value: "kaprodi" },
+        { label: "Arsiparis Surat Masuk", value: "arsiparis_surat_masuk" },
+        { label: "Arsiparis Surat Keluar", value: "arsiparis_surat_keluar" },
+        { label: "Staff", value: "staff" },
+      ],
     },
     {
       fieldLabel: "Jenis Kelamin",
@@ -232,7 +243,7 @@ export default function UserManagementContainer() {
       title: "Jabatan",
       dataIndex: "jabatan",
       key: "jabatan",
-      render: (record) => record || "-",
+      render: (record) => getJabatan(record) || "-",
     },
     {
       title: "Role",

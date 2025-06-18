@@ -192,9 +192,6 @@ export default function DisposisiDetailContainer() {
           jabatan: "Tidak Diketahui"
         };
 
-
-
-
   const initialName = () => {
     if (disposisiData.length === 0) {
       // Jika tidak ada disposisi, gunakan nama pengirim surat
@@ -411,8 +408,11 @@ export default function DisposisiDetailContainer() {
                         className="w-full"
                         style={{ height: "40px" }}
                         allowClear
-                        onChange={(value) => {
-                          form.setFieldsValue({ id_penerima: value }); // Perbarui nilai di form state
+                        showSearch
+                        optionFilterProp="children"
+                        filterOption={(input, option) => {
+                          const label = option?.children as string;
+                          return label.toLowerCase().includes(input.toLowerCase());
                         }}
                         options={userManagementData
                           .filter(
@@ -440,10 +440,11 @@ export default function DisposisiDetailContainer() {
                                     {getInitial(user.nama_lengkap)}
                                   </span>
                                 </div>
-                                <span className="font-medium">{`${user.nama_lengkap} - ${user.jabatan}`}</span>
+                                <span className="font-medium">{`${user.nama_lengkap} - ${getJabatan(user.jabatan)}`}</span>
                               </div>
                             ),
                             value: user.id,
+                            children: `${user.nama_lengkap} - ${getJabatan(user.jabatan)}`,
                           }))}
                       />
                       {/* Note untuk informasi pencarian */}

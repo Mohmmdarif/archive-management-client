@@ -6,9 +6,7 @@ import NotFound from "./pages/NotFound";
 import TokenChecker from "./libs/utils/TokenChecker";
 import AuthRoute from "./components/AuthRoute";
 import RoleGuard from "./components/RoleGuard";
-import DisposisiDetail from "./pages/DisposisiDetail";
 import Loading from "./components/ui/Loading";
-import Disposisi from "./components/ui/containers/DisposisiContainer";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Archive = lazy(() => import("./pages/Archive"));
@@ -17,6 +15,8 @@ const Category = lazy(() => import("./pages/master-data/Category"));
 const Type = lazy(() => import("./pages/master-data/Type"));
 const Criteria = lazy(() => import("./pages/master-data/Criteria"));
 const UserManagement = lazy(() => import("./pages/UserManagement"));
+const Disposisi = lazy(() => import("./pages/Disposisi"));
+const DisposisiDetail = lazy(() => import("./pages/DisposisiDetail"));
 
 const router = createBrowserRouter([
   {

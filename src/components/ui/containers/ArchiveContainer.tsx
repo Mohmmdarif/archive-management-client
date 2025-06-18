@@ -588,7 +588,7 @@ export default function ArchiveContainer() {
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-white bg-opacity-75 z-50 rounded-lg">
           <div className="flex flex-col items-center">
             {/* Loading Icon */}
-            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 border-solid mb-4"></div>
+            <Spin size="large" tip="Loading..." className="text-blue-500 mb-3" />
             {/* Informational Text */}
             <p className="text-xl text-gray-700 font-semibold">Sedang memproses klasifikasi...</p>
             <p className="text-md text-gray-500 mt-2">Harap tunggu beberapa saat.</p>

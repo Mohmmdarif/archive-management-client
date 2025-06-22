@@ -21,7 +21,7 @@ interface AuthStore {
   isTokenExpired: () => boolean;
   clearIsLoggedIn: () => void;
   getRole: () => number;
-  getUserId: () => string | null;
+  getUserId: () => string;
 }
 
 const useAuthStore = create<AuthStore>()(
@@ -107,7 +107,7 @@ const useAuthStore = create<AuthStore>()(
         const decodedToken = get().decodedToken;
         return decodedToken && decodedToken.user_id !== null
           ? (decodedToken.id as string)
-          : null; // Default value when user_id is null
+          : ""; // Default value when user_id is null
       },
     }),
     {

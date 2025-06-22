@@ -59,17 +59,42 @@ interface LetterDetails {
   path_file: string;
   Surat_Masuk?: SuratMasuk[];
   surat_keluar?: SuratKeluar[];
+
+  status_penghapusan_surat?: "REQUESTED" | "APPROVED" | "REJECTED";
+  alasan_penghapusan_surat?: string;
+  id_user_pengaju_penghapusan?: string;
+  is_deleted?: boolean;
+}
+
+interface HistoryDeletion {
+  id: string;
+  id_surat: string;
+  id_user: string;
+  status: "REQUESTED" | "APPROVED" | "REJECTED";
+  alasan: string;
+  created_at: Date;
+  surat: {
+    id: string;
+    no_surat: string;
+    perihal_surat: string;
+    id_kriteria_surat: number;
+    tanggal_surat: Date;
+    status_penghapusan_surat: "REQUESTED" | "APPROVED" | "REJECTED";
+    is_deleted: boolean;
+  };
 }
 
 interface LetterStore {
   letterData: LetterData[];
   letterDetails: LetterDetails;
+  historyDeletion: HistoryDeletion[];
   isLoading: boolean;
   isLoadingClassification: boolean;
   error: string | null;
 
   fetchSuratData: () => Promise<void>;
   fetchSuratById: (id: string) => Promise<void>;
+  fetchHistoryDeletion: (idUser: string) => Promise<void>;
   // Add data with file upload
   addData: (newData: { [key: string]: File; file: File }) => Promise<void>;
   savedConfirmedData: (payload: LetterDetails) => Promise<void>;
@@ -79,6 +104,13 @@ interface LetterStore {
   ) => Promise<void>;
   deleteCloudinaryFile: (publicId: string) => Promise<void>;
   deleteData: (id: string) => Promise<void>;
+  requestToDelete: (
+    id: string,
+    alasan_penghapusan_surat: string,
+    id_user_pengaju_penghapusan: string
+  ) => Promise<void>;
+  approveDeleteRequest: (id: string) => Promise<void>;
+  rejectDeleteRequest: (id: string) => Promise<void>;
 }
 
 const getToken = () => useAuthStore.getState().token;
@@ -86,6 +118,7 @@ const getToken = () => useAuthStore.getState().token;
 const useLetterStore = create<LetterStore>((set) => ({
   letterData: [],
   letterDetails: {} as LetterDetails,
+  historyDeletion: [],
   isLoading: false,
   isLoadingClassification: false,
   error: null,
@@ -118,6 +151,26 @@ const useLetterStore = create<LetterStore>((set) => ({
       });
       const { data } = response.data;
       set({ letterDetails: data || {}, isLoading: false });
+    } catch (error) {
+      set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
+    }
+  },
+
+  fetchHistoryDeletion: async (idUser: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axiosInstance.get(
+        `/surat/delete-history/${idUser}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
+      );
+      const { data } = response.data;
+      set({ historyDeletion: data || [], isLoading: false });
     } catch (error) {
       set({ error: getErrorMessage(error), isLoading: false });
       throw new Error(getErrorMessage(error));
@@ -206,6 +259,73 @@ const useLetterStore = create<LetterStore>((set) => ({
             : state.letterDetails,
         isLoading: false,
       }));
+    } catch (error) {
+      set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
+    }
+  },
+
+  requestToDelete: async (
+    id: string,
+    alasan_penghapusan_surat: string,
+    id_user_pengaju_penghapusan: string
+  ) => {
+    set({ isLoading: true, error: null });
+    try {
+      await axiosInstance.put(
+        `/surat/${id}/request-delete`,
+        {
+          alasan_penghapusan_surat,
+          id_user_pengaju_penghapusan,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
+      );
+      set({ isLoading: false });
+    } catch (error) {
+      set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
+    }
+  },
+
+  approveDeleteRequest: async (id: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      await axiosInstance.put(
+        `/surat/${id}/approve-delete`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
+      );
+      set({ isLoading: false });
+    } catch (error) {
+      set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
+    }
+  },
+
+  rejectDeleteRequest: async (id: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      await axiosInstance.put(
+        `/surat/${id}/reject-delete`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
+      );
+      set({ isLoading: false });
     } catch (error) {
       set({ error: getErrorMessage(error), isLoading: false });
       throw new Error(getErrorMessage(error));

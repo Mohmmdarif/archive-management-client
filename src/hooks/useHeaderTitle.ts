@@ -14,6 +14,8 @@ const useHeaderTitle = () => {
       return "Arsip";
     case "/disposisi":
       return "Disposisi";
+    case "/request-approval":
+      return "Pengajuan Penghapusan";
     case "/manajemen-user":
       return "Manajemen User";
     case "/kategori-surat":

@@ -33,4 +33,28 @@ const getColor = (initial: string) => {
   return colorMap[initial] || "#C1C7CD";
 };
 
-export { getInitial, getColor };
+const getColorFromNumber = (num: number): string => {
+  const colors = [
+    "#E91E63",
+    "#9C27B0",
+    "#FFEB3B",
+    "#2196F3",
+    "#4CAF50",
+    "#FF5722",
+    "#03A9F4",
+    "#FFC107",
+    "#8BC34A",
+    "#00BCD4",
+    "#3F51B5",
+    "#009688",
+    "#CDDC39",
+    "#FF9800",
+    "#795548",
+    "#9E9E9E",
+    "#607D8B",
+    "#00E676",
+  ];
+  return colors[num % colors.length];
+};
+
+export { getInitial, getColor, getColorFromNumber };

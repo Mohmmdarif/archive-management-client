@@ -2,7 +2,7 @@ import { notification } from "antd";
 
 type NotificationType = "success" | "error" | "warning" | "info";
 
-interface NotifyProps {
+export interface NotifyProps {
   type: NotificationType;
   notifyTitle: string;
   notifyContent: string;

@@ -1,5 +1,5 @@
 import { Modal, Descriptions, Tag } from "antd";
-import { getRole } from "../../libs/utils/getRole";
+import { getJabatan, getRole } from "../../../libs/utils/getRole";
 import { FaUser } from "react-icons/fa";
 
 interface DetailUserProps {
@@ -36,6 +36,7 @@ export default function DetailUser({
     {
       key: "jabatan",
       label: "Jabatan",
+      render: (record: string) => getJabatan(record) || "-",
     },
     {
       key: "no_telp",

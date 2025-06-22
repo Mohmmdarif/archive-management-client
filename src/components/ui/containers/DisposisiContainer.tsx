@@ -13,6 +13,7 @@ import useDisposisiStore, { SuratDisposisi } from '../../../store/api/useDisposi
 // Components
 import TableData from '../table/TableData';
 import ButtonIcon from '../buttons/ButtonIcon';
+import SubHeader from '../headers/SubHeader';
 
 // Icons
 import { IoArrowRedoOutline } from 'react-icons/io5';
@@ -89,6 +90,7 @@ export default function Disposisi() {
         title: "Pesan Disposisi",
         dataIndex: "pesan_disposisi",
         key: "pesan_disposisi",
+        width: 200,
         render: (_, record) => {
           // Ambil disposisi terakhir dari record
           const lastDisposisi = record.disposisi?.[record.disposisi.length - 1];
@@ -154,7 +156,10 @@ export default function Disposisi() {
 
   return (
     <section className="bg-white w-full h-full flex flex-col p-5 rounded-lg relative">
-      <h1 className="text-2xl font-bold">Disposisi</h1>
+      {/* Sub Header */}
+      <SubHeader subHeaderTitle="Disposisi" />
+
+      {/* Table Data */}
       <div className="overflow-y-auto flex-grow">
         <TableData<SuratDisposisi>
           dataSource={suratDisposisiByPenerima} // Gunakan data yang sudah difilter

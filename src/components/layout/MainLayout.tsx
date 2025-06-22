@@ -6,19 +6,19 @@ import SidebarContent from "../ui/sidebar/SidebarContent";
 import useHeaderTitle from "../../hooks/useHeaderTitle";
 import LiveDateTime from "../ui/LiveDateTime";
 import { getColor, getInitial } from "../../libs/utils/randomProfile";
-import useAuthStore from "../../store/api/useAuthStore";
 import { getJabatan } from "../../libs/utils/getRole";
+import useUserManagementStore from "../../store/api/useUserManagementStore";
+import { useEffect } from "react";
 
 const { Header, Content } = Layout;
 
 export default function MainLayout() {
   const title = useHeaderTitle();
-  const personalData = useAuthStore((state) => state.decodedToken);
+  const { userMe, fetchUserManagementDataById } = useUserManagementStore();
 
-  const userMe = {
-    nama_lengkap: (personalData?.nama_lengkap as string) || "",
-    jabatan: (personalData?.jabatan as string) || "",
-  };
+  useEffect(() => {
+    fetchUserManagementDataById();
+  }, [fetchUserManagementDataById]);
 
   return (
     <Layout className="h-screen">
@@ -43,7 +43,7 @@ export default function MainLayout() {
               <div
                 className="p-3 rounded-lg shadow-md flex items-center justify-center text-white font-bold text-xl"
                 style={{
-                  backgroundColor: getColor(getInitial(userMe?.nama_lengkap)),
+                  backgroundColor: getColor(getInitial(userMe?.nama_lengkap || "")),
                   width: 55,
                   height: 55,
                 }}
@@ -52,9 +52,9 @@ export default function MainLayout() {
               </div>
               <div className="hidden md:flex flex-col text-left space-y-1">
                 <span className="text-sm font-semibold">
-                  {userMe.nama_lengkap || "[Nama Lengkap]"}
+                  {userMe?.nama_lengkap || "[Nama Lengkap]"}
                 </span>
-                <span className="text-xs">{getJabatan(userMe.jabatan) || "[Jabatan]"}</span>
+                <span className="text-xs">{getJabatan(userMe?.jabatan) || "[Jabatan]"}</span>
               </div>
             </button>
           </section>

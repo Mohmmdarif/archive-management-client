@@ -54,6 +54,7 @@ export default function UserManagementContainer() {
   const {
     userManagementData,
     fetchUserManagementData,
+    fetchUserManagementDataById,
     addData,
     updateData,
     deleteData,
@@ -345,6 +346,7 @@ export default function UserManagementContainer() {
       if (editingData) {
         await updateData(editingData.id, values);
       }
+      await fetchUserManagementDataById();
       notify({
         type: "success",
         notifyTitle: "Success!",

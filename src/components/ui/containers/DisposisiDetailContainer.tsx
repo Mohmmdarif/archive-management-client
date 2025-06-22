@@ -74,10 +74,6 @@ export default function DisposisiDetailContainer() {
     (user) => user.id === userId && !user.jabatan
   );
 
-  const isRoleDekan = userManagementData.some(
-    (user) => user.id === userId && roleId === 2 && user.jabatan.toLowerCase() === "dekan"
-  );
-
   // Ambil disposisi terakhir
   const lastDisposisi = disposisiData[disposisiData.length - 1];
   const lastStatusId = lastDisposisi?.id_status_disposisi;
@@ -87,10 +83,11 @@ export default function DisposisiDetailContainer() {
     disposisiData.length > 0 &&
     disposisiData[disposisiData.length - 1]?.id_penerima === userId;
 
-  // Periksa apakah pengguna sudah melakukan disposisi
+  // User pernah mengajukan disposisi
   const hasUserDisposisi = disposisiData.some(
     (disposisi) => disposisi.id_pengaju === userId
   );
+
 
   useEffect(() => {
     const handleResize = () => {
@@ -155,7 +152,7 @@ export default function DisposisiDetailContainer() {
       setTimeout(() => {
         navigate("/arsip");
         form.resetFields();
-      }, 1500);
+      }, 500);
       notify({
         type: "success",
         notifyTitle: "Success!",
@@ -303,10 +300,17 @@ export default function DisposisiDetailContainer() {
       </article>
 
       {hasUserDisposisi ? (
-        // Jika pengguna sudah melakukan disposisi, tampilkan alert
         <Alert
           message="Disposisi Sudah Dilakukan"
           description="Anda sudah melakukan disposisi untuk surat ini. Tidak ada tindakan lebih lanjut yang diperlukan."
+          type="info"
+          showIcon
+          style={{ marginTop: "30px" }}
+        />
+      ) : disposisiData.length > 0 && !isUserPenerimaDisposisi ? (
+        <Alert
+          message="Tidak Ada Tindakan Diperlukan"
+          description="Disposisi ini telah ditangani. Anda tidak memiliki wewenang untuk menindaklanjuti."
           type="info"
           showIcon
           style={{ marginTop: "30px" }}
@@ -323,7 +327,7 @@ export default function DisposisiDetailContainer() {
             />
           ) : !formVisible ? (
             // Jika form belum ditampilkan, tampilkan tombol untuk membuka form
-            disposisiData.length === 0 && isRoleDekan ? (
+            disposisiData.length === 0 ? (
               <Alert
                 message="Tindak Lanjut Disposisi"
                 description="Klik tombol di bawah untuk menindaklanjuti disposisi ini."
@@ -401,57 +405,58 @@ export default function DisposisiDetailContainer() {
                         }
                       },
                     ]}
-                  >
-                    <>
-                      <Select
-                        placeholder="Pilih Tujuan Disposisi"
-                        className="w-full"
-                        style={{ height: "40px" }}
-                        allowClear
-                        showSearch
-                        optionFilterProp="children"
-                        filterOption={(input, option) => {
-                          const label = option?.children as string;
-                          return label.toLowerCase().includes(input.toLowerCase());
-                        }}
-                        options={userManagementData
-                          .filter(
-                            (user) =>
-                              user.jabatan !== null &&
-                              user.jabatan !== undefined &&
-                              user.role_id !== 4 &&
-                              user.id !== userId
-                          )
-                          .map((user) => ({
-                            label: (
-                              <div className="flex items-center gap-2">
-                                <div
-                                  className="flex items-center justify-center bg-white p-3 rounded-lg shadow-md"
-                                  style={{
-                                    backgroundColor: getColor(
-                                      getInitial(user.nama_lengkap)
-                                    ),
-                                    width: 25,
-                                    height: 25,
-                                    borderRadius: "50%",
-                                  }}
-                                >
-                                  <span className="text-white font-bold text-xs">
-                                    {getInitial(user.nama_lengkap)}
-                                  </span>
-                                </div>
-                                <span className="font-medium">{`${user.nama_lengkap} - ${getJabatan(user.jabatan)}`}</span>
-                              </div>
-                            ),
-                            value: user.id,
-                            children: `${user.nama_lengkap} - ${getJabatan(user.jabatan)}`,
-                          }))}
-                      />
-                      {/* Note untuk informasi pencarian */}
+                    extra={
                       <div style={{ marginTop: 5, fontSize: "12px", color: "#888" }}>
                         <strong>Catatan:</strong> Anda dapat mengosongkan <em>"Tujuan Surat"</em> apabila status disposisi yang dipilih adalah <strong>"Selesai / Arsipkan"</strong> atau <strong>"Ditolak / Tidak Relevan"</strong>.
                       </div>
-                    </>
+                    }
+                  >
+                    <Select
+                      placeholder="Pilih Tujuan Disposisi"
+                      className="w-full"
+                      style={{ height: "40px" }}
+                      allowClear
+                      showSearch
+                      optionFilterProp="children"
+                      filterOption={(input, option) => {
+                        return (option?.children as string)
+                          .toLowerCase()
+                          .includes(input.toLowerCase());
+                      }}
+                      options={userManagementData
+                        .filter(
+                          (user) =>
+                            user.jabatan !== null &&
+                            user.jabatan !== undefined &&
+                            user.role_id !== 4 &&
+                            user.id !== userId
+                        )
+                        .map((user) => ({
+                          label: (
+                            <div className="flex items-center gap-2">
+                              <div
+                                className="flex items-center justify-center bg-white p-3 rounded-lg shadow-md"
+                                style={{
+                                  backgroundColor: getColor(
+                                    getInitial(user.nama_lengkap)
+                                  ),
+                                  width: 25,
+                                  height: 25,
+                                  borderRadius: "50%",
+                                }}
+                              >
+                                <span className="text-white font-bold text-xs">
+                                  {getInitial(user.nama_lengkap)}
+                                </span>
+                              </div>
+                              <span className="font-medium">{`${user.nama_lengkap} - ${getJabatan(user.jabatan)}`}</span>
+                            </div>
+                          ),
+                          value: user.id,
+                          children: `${user.nama_lengkap} - ${getJabatan(user.jabatan)}`,
+                        }))}
+                    />
+
                   </Form.Item>
                   <Form.Item
                     label="Status Disposisi"

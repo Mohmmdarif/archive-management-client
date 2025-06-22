@@ -3,17 +3,29 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import dayjs from "dayjs";
 import { ColumnsType } from "antd/es/table";
-import { Badge, Button, Flex, Modal, Space, Spin, Upload } from "antd";
+import {
+  Badge,
+  Button,
+  Flex,
+  Form,
+  Input,
+  Modal,
+  Space,
+  Spin,
+  Upload,
+} from "antd";
 
 // Hooks and Store
 import useLetterStore from "../../../store/api/useLetterStore";
 import useModalStore from "../../../store/useModal";
 import useNotify from "../../../hooks/useNotify";
 import useClassifierStore from "../../../store/api/useClassifierStore";
+import useCriteriaStore from "../../../store/api/useCriteriaStore";
 import useAuthStore from "../../../store/api/useAuthStore";
 import useSearchStore from "../../../store/useSearch";
 import { filterData } from "../../../libs/utils/filterData";
 import { getErrorMessage } from "../../../libs/utils/errorHandler";
+import { getColorFromNumber } from "../../../libs/utils/randomProfile";
 
 // Components
 import TableData from "../table/TableData";
@@ -27,7 +39,8 @@ import ModalEditDetailLetter from "../modals/ModalEditDetailLetter";
 import { TbTrash } from "react-icons/tb";
 import { BiEdit, BiPlus } from "react-icons/bi";
 import { IoArrowRedoOutline, IoEyeOutline } from "react-icons/io5";
-
+import { useForm } from "antd/es/form/Form";
+import ModalRequestDelete from "../modals/ModalRequestDelete";
 
 interface SuratMasuk {
   id: string;
@@ -69,6 +82,7 @@ interface LetterDetails {
 
 export default function ArchiveContainer() {
   const navigate = useNavigate();
+  const [form] = useForm();
   const {
     letterData,
     letterDetails,
@@ -78,22 +92,31 @@ export default function ArchiveContainer() {
     fetchSuratData,
     deleteData,
     deleteCloudinaryFile,
+    requestToDelete,
   } = useLetterStore();
   const { notify, contextHolder } = useNotify();
   const { isModalOpen, closeModal, openModal } = useModalStore();
+  const [isModalEditOpen, setIsModalEditOpen] = useState<boolean>(false);
+  const [isModalRequestDeleteOpen, setIsModalRequestDeleteOpen] =
+    useState<boolean>(false);
   const { searchQuery } = useSearchStore();
   const { classifierData, fetchClassifierData } = useClassifierStore();
+  const { criteriaData, fetchCriteriaData } = useCriteriaStore();
   const [selectedRecord, setSelectedRecord] = useState<LetterDetails | null>(
     null
   );
-  const [isModalEditOpen, setIsModalEditOpen] = useState<boolean>(false);
-  const getRole = useAuthStore((state) => state.getRole);
+  const [idLetterToRequestDelete, setIdLetterToRequestDelete] =
+    useState<string>("");
+
+  const { getRole, getUserId } = useAuthStore();
   const roleId = getRole();
+  const userId = getUserId();
 
   useEffect(() => {
     fetchSuratData();
     fetchClassifierData();
-  }, [fetchSuratData, fetchClassifierData]);
+    fetchCriteriaData();
+  }, [fetchSuratData, fetchClassifierData, fetchCriteriaData]);
 
   const processedData = useMemo(() => {
     const data = Array.isArray(letterDetails) ? letterDetails : [];
@@ -131,34 +154,76 @@ export default function ArchiveContainer() {
     ["no_surat", "perihal_surat", "pengirim_surat", "penerima_surat"]
   );
 
-  const handleDelete = async (id: string, filename: string, e: React.MouseEvent) => {
+  const handleDelete = async (
+    id: string,
+    filename: string,
+    e: React.MouseEvent
+  ) => {
     e.stopPropagation();
 
-    Modal.confirm({
-      title: "Delete Letter Data",
-      content: "Are you sure you want to delete this letter data?",
-      okText: "Delete",
-      cancelText: "Cancel",
-      onOk: async () => {
-        try {
-          deleteCloudinaryFile(filename);
-          await deleteData(id);
-          await fetchSuratData();
-          // Show notification
-          notify({
-            type: "success",
-            notifyTitle: "Success!",
-            notifyContent: "Letter data has been successfully deleted.",
-          });
-        } catch (error) {
-          notify({
-            type: "error",
-            notifyTitle: "Error!",
-            notifyContent: getErrorMessage(error as Error),
-          });
-        }
-      },
-    });
+    if (roleId === 1) {
+      Modal.confirm({
+        title: "Delete Letter Data",
+        content:
+          "Are you sure you want to delete this letter data permanently?",
+        okText: "Delete",
+        cancelText: "Cancel",
+        onOk: async () => {
+          try {
+            deleteCloudinaryFile(filename);
+            await deleteData(id);
+            await fetchSuratData();
+
+            // Show notification
+            notify({
+              type: "success",
+              notifyTitle: "Success!",
+              notifyContent: "Letter data has been successfully deleted.",
+            });
+          } catch (error) {
+            notify({
+              type: "error",
+              notifyTitle: "Error!",
+              notifyContent: getErrorMessage(error as Error),
+            });
+          }
+        },
+      });
+    } else {
+      setIdLetterToRequestDelete(id);
+      setIsModalRequestDeleteOpen(true);
+    }
+  };
+
+  const handleRequestDelete = async () => {
+    try {
+      const values = await form.validateFields();
+
+      if (idLetterToRequestDelete && idLetterToRequestDelete !== "") {
+        await requestToDelete(
+          idLetterToRequestDelete,
+          values.alasan_penghapusan,
+          userId
+        );
+      }
+
+      notify({
+        type: "success",
+        notifyTitle: "Success!",
+        notifyContent: "Your request to delete the letter has been sent.",
+      });
+
+      setIsModalRequestDeleteOpen(false);
+      form.resetFields();
+    } catch (error) {
+      if (error instanceof Error) {
+        notify({
+          type: "error",
+          notifyTitle: "Error!",
+          notifyContent: getErrorMessage(error as Error),
+        });
+      }
+    }
   };
 
   const handleEdit = (record: LetterDetails, e: React.MouseEvent) => {
@@ -251,12 +316,16 @@ export default function ArchiveContainer() {
         ],
 
         onFilter: (value, record) => {
-          const tanggalRecord = dayjs(record.tanggal_surat).format("YYYY-MM-DD");
+          const tanggalRecord = dayjs(record.tanggal_surat).format(
+            "YYYY-MM-DD"
+          );
 
           const today = dayjs().format("YYYY-MM-DD");
           const yesterday = dayjs().subtract(1, "day").format("YYYY-MM-DD");
           const sevenDaysAgo = dayjs().subtract(7, "day").format("YYYY-MM-DD");
-          const thirtyDaysAgo = dayjs().subtract(30, "day").format("YYYY-MM-DD");
+          const thirtyDaysAgo = dayjs()
+            .subtract(30, "day")
+            .format("YYYY-MM-DD");
           const thisMonth = dayjs().format("YYYY-MM");
           const lastMonth = dayjs().subtract(1, "month").format("YYYY-MM");
           const thisYear = dayjs().format("YYYY");
@@ -310,7 +379,9 @@ export default function ArchiveContainer() {
           value: name,
         })),
         onFilter: (value, record) => record.pengirim_surat === value,
-        render: (text) => <span className="text-ellipsis line-clamp-1">{text}</span>,
+        render: (text) => (
+          <span className="text-ellipsis line-clamp-1">{text}</span>
+        ),
       },
       {
         title: "Penerima",
@@ -325,27 +396,54 @@ export default function ArchiveContainer() {
           value: name,
         })),
         onFilter: (value, record) => record.penerima_surat === value,
-        render: (text) => <span className="text-ellipsis line-clamp-1">{text}</span>,
+        render: (text) => (
+          <span className="text-ellipsis line-clamp-1">{text}</span>
+        ),
       },
       {
         title: "Jenis Surat",
         dataIndex: "id_type_surat",
         key: "id_type_surat",
-        filters:
-          [1, 2, 5].includes(roleId) ? classifierData
-            .filter(item => item.id !== undefined && item.id !== null)
-            .map(item => ({
+        filters: [1, 2, 5].includes(roleId)
+          ? classifierData
+            .filter((item) => item.id !== undefined && item.id !== null)
+            .map((item) => ({
               text: item.nama_type,
               value: item.id as string | number | boolean,
-            })) : undefined,
+            }))
+          : undefined,
 
         onFilter: (value, record) => record.id_type_surat === value,
         render: (id) => {
           const type = classifierData.find((item) => item.id === id);
           return (
             <Badge
-              color={type?.id === 1 ? "blue" : "green"}
+              color={getColorFromNumber(type?.id || 0)}
               text={type?.nama_type}
+              style={{ textTransform: "capitalize" }}
+            />
+          );
+        },
+      },
+      {
+        title: "Kriteria Surat",
+        dataIndex: "id_kriteria_surat",
+        key: "id_kriteria_surat",
+        width: 150,
+        filterSearch: true,
+        filters: criteriaData
+          .filter((item) => item.id !== undefined && item.id !== null)
+          .map((item) => ({
+            text: item.nama_kriteria,
+            value: item.id as number,
+          })),
+        onFilter: (value, record) => record.id_kriteria_surat === value,
+        render: (id) => {
+          const kriteria = criteriaData.find((item) => item.id === id);
+          return (
+            <Badge
+              color={getColorFromNumber(kriteria?.id || 0)}
+              text={kriteria?.nama_kriteria}
               style={{ textTransform: "capitalize" }}
             />
           );
@@ -362,7 +460,9 @@ export default function ArchiveContainer() {
           value: name,
         })),
         onFilter: (value, record) => record.pengarsip === value,
-        render: (text) => <span style={{ textTransform: "capitalize" }}>{text}</span>,
+        render: (text) => (
+          <span style={{ textTransform: "capitalize" }}>{text}</span>
+        ),
       },
       {
         title: "Tanggal Diarsipkan",
@@ -392,7 +492,9 @@ export default function ArchiveContainer() {
           const today = dayjs().format("YYYY-MM-DD");
           const yesterday = dayjs().subtract(1, "day").format("YYYY-MM-DD");
           const sevenDaysAgo = dayjs().subtract(7, "day").format("YYYY-MM-DD");
-          const thirtyDaysAgo = dayjs().subtract(30, "day").format("YYYY-MM-DD");
+          const thirtyDaysAgo = dayjs()
+            .subtract(30, "day")
+            .format("YYYY-MM-DD");
           const thisMonth = dayjs().format("YYYY-MM");
           const lastMonth = dayjs().subtract(1, "month").format("YYYY-MM");
           const thisYear = dayjs().format("YYYY");
@@ -431,7 +533,6 @@ export default function ArchiveContainer() {
             }, 0);
           }
         },
-
       },
       {
         title: "File",
@@ -492,7 +593,9 @@ export default function ArchiveContainer() {
                     tooltipTitle="Delete"
                     shape="circle"
                     icon={<TbTrash />}
-                    onClick={(e) => record.id && handleDelete(record.id, record.filename, e)}
+                    onClick={(e) =>
+                      record.id && handleDelete(record.id, record.filename, e)
+                    }
                   />
                 </>
               )}
@@ -528,11 +631,10 @@ export default function ArchiveContainer() {
         gap={10}
       >
         <Search>
-          {/* Note untuk informasi pencarian */}
-          {" "}
-          <strong>Catatan:</strong> Anda dapat mencari berdasarkan{" "}
-          <em>"No Surat"</em>, <em>"Perihal Surat"</em>,{" "}
-          <em>"Pengirim Surat"</em>, atau <em>"Penerima Surat"</em>.
+          {/* Note untuk informasi pencarian */} <strong>Catatan:</strong> Anda
+          dapat mencari berdasarkan <em>"No Surat"</em>,{" "}
+          <em>"Perihal Surat"</em>, <em>"Pengirim Surat"</em>, atau{" "}
+          <em>"Penerima Surat"</em>.
         </Search>
 
         <Upload
@@ -583,19 +685,37 @@ export default function ArchiveContainer() {
         data={selectedRecord as LetterDetails}
       />
 
+      {/* Modal Request Delete Surat */}
+      <ModalRequestDelete
+        form={form}
+        isModalOpen={isModalRequestDeleteOpen}
+        handleOk={handleRequestDelete}
+        handleCancel={() => {
+          setIsModalRequestDeleteOpen(false);
+          form.resetFields();
+        }}
+      />
+
       {/* loading for waiting result classification */}
       {isLoadingClassification && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-white bg-opacity-75 z-50 rounded-lg">
           <div className="flex flex-col items-center">
             {/* Loading Icon */}
-            <Spin size="large" tip="Loading..." className="text-blue-500 mb-3" />
+            <Spin
+              size="large"
+              tip="Loading..."
+              className="text-blue-500 mb-5"
+            />
             {/* Informational Text */}
-            <p className="text-xl text-gray-700 font-semibold">Sedang memproses klasifikasi...</p>
-            <p className="text-md text-gray-500 mt-2">Harap tunggu beberapa saat.</p>
+            <p className="text-xl text-gray-700 font-semibold mt-2">
+              Sedang memproses klasifikasi...
+            </p>
+            <p className="text-md text-gray-500 mt-2">
+              Harap tunggu beberapa saat.
+            </p>
           </div>
         </div>
       )}
-
     </section>
   );
 }

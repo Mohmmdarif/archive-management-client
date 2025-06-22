@@ -45,12 +45,8 @@ export default function DashboardContainer() {
   const hasShownNotification = useRef(false);
   const { notify, contextHolder } = useNotify();
   const { isLoggedIn, clearIsLoggedIn, getUserId, getRole } = useAuthStore();
-  const {
-    userMe,
-    userManagementData,
-    fetchUserManagementData,
-    fetchUserManagementDataById,
-  } = useUserManagementStore();
+  const { userMe, fetchUserManagementData, fetchUserManagementDataById } =
+    useUserManagementStore();
   const { classifierData, fetchClassifierData } = useClassifierStore();
   const {
     letterData,
@@ -64,10 +60,6 @@ export default function DashboardContainer() {
   } = useDashboardStore();
   const userId = getUserId();
   const roleId = getRole();
-
-  const currentUser = userManagementData.find((user) => user.id === userId);
-  const isDekan =
-    currentUser?.jabatan && currentUser?.jabatan.toLowerCase() === "dekan";
 
   // show notification when isLoggedIn
   useEffect(() => {
@@ -109,21 +101,27 @@ export default function DashboardContainer() {
     {
       title: "Surat Masuk",
       count: countDataSuratMasuk,
-      icon: <TbCircleDashedLetterM size={60} />,
+      icon: <TbCircleDashedLetterM size={40} />,
       rolesAllowed: [1, 2, 3, 4, 5],
     },
     {
       title: "Surat Keluar",
       count: countDataSuratKeluar,
-      icon: <TbCircleDashedLetterK size={60} />,
+      icon: <TbCircleDashedLetterK size={40} />,
       rolesAllowed: [1, 2, 3, 4, 5],
     },
     {
       title: "Surat Disposisi",
       count: countDataDisposisi,
-      icon: <TbCircleDashedLetterD size={60} />,
+      icon: <TbCircleDashedLetterD size={40} />,
       rolesAllowed: [1, 2, 3, 5],
     },
+    {
+      title: "Ajuan Penghapusan",
+      count: 0,
+      icon: <TbCircleDashedLetterD size={40} />,
+      rolesAllowed: [1],
+    }
   ];
 
   const processedData = useMemo(() => {
@@ -228,37 +226,30 @@ export default function DashboardContainer() {
       <section className="h-auto pb-4 md:pb-0">
         {/* Dashboard View Data Surat */}
         <div
-          className={`grid grid-cols-1 gap-4 mt-4 ${[4].includes(roleId) || isDekan
-              ? "md:grid-cols-2"
-              : "md:grid-cols-3"
+          className={`grid grid-cols-1 gap-4 mt-4 ${roleId === 4 ? "sm:grid-cols-2" : [2, 3, 5].includes(roleId) ? "md:grid-cols-3" : "md:grid-cols-2 lg:grid-cols-4"
             }`}
         >
-          {datas.map((data, index) => {
-            if (isDekan && data.title === "Surat Disposisi") {
-              return null;
-            }
-            return (
-              <div
-                className={`bg-white shadow-xs h-36 rounded-lg p-5 ${data.rolesAllowed?.includes(roleId) ? "" : "hidden"
-                  }`}
-                key={index}
-              >
-                <div className="flex flex-col justify-between h-full">
-                  <span className="font-semibold text-lg md:text-xl">
-                    {data.title}
+          {datas.map((data, index) => (
+            <div
+              className={`bg-white shadow-xs h-36 rounded-lg p-5 ${data.rolesAllowed?.includes(roleId) ? "" : "hidden"
+                }`}
+              key={index}
+            >
+              <div className="flex flex-col justify-between h-full">
+                <span className="font-semibold text-lg md:text-xl">
+                  {data.title}
+                </span>
+                <div className="flex items-center justify-between">
+                  <span className="text-4xl md:text-5xl font-bold">
+                    {data.count ?? 0}
                   </span>
-                  <div className="flex items-center justify-between">
-                    <span className="text-4xl md:text-5xl font-bold">
-                      {data.count ?? 0}
-                    </span>
-                    <div className="bg-blue-500 text-white p-3 rounded-lg">
-                      {data.icon}
-                    </div>
+                  <div className="bg-blue-500 text-white p-3 rounded-lg">
+                    {data.icon}
                   </div>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
 
         {/* Data Surat hari ini */}

@@ -8,6 +8,7 @@ import AuthRoute from "./components/AuthRoute";
 import RoleGuard from "./components/RoleGuard";
 import Loading from "./components/ui/Loading";
 import Disposisi from "./components/ui/containers/DisposisiContainer";
+import RequestApprovalContainer from "./components/ui/containers/RequestApprovalContainer";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Archive = lazy(() => import("./pages/Archive"));
@@ -73,6 +74,16 @@ const router = createBrowserRouter([
             </RoleGuard>
           </Suspense>
         )
+      },
+      {
+        path: "/request-approval",
+        element: (
+          <Suspense fallback={<Loading />}>
+            <RoleGuard allowedRoles={[1, 3, 4]}>
+              <RequestApprovalContainer />
+            </RoleGuard>
+          </Suspense>
+        ),
       },
       {
         path: "/manajemen-user",

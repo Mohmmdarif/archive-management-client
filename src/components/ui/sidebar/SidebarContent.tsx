@@ -10,24 +10,14 @@ import { IoLogOutOutline } from "react-icons/io5";
 import useAuthStore from "../../../store/api/useAuthStore";
 import { ItemType, MenuItemType } from "antd/es/menu/interface";
 import logo from "../../../assets/logo.webp";
-import useUserManagementStore from "../../../store/api/useUserManagementStore";
 
 export default function SidebarContent() {
   const location = useLocation();
   const navigate = useNavigate();
   const { collapsed } = useCollapsible();
   const [selectedKey, setSelectedKey] = useState<string>(location.pathname);
-  const { logout, getRole, getUserId } = useAuthStore();
+  const { logout, getRole } = useAuthStore();
   const roleId = getRole();
-  const userId = getUserId();
-  const { userManagementData, fetchUserManagementData } = useUserManagementStore();
-
-  const currentUser = userManagementData.find((user) => user.id === userId);
-  const isDekan = currentUser?.jabatan && currentUser?.jabatan.toLowerCase() === "dekan";
-
-  useEffect(() => {
-    fetchUserManagementData();
-  }, [fetchUserManagementData]);
 
   useEffect(() => {
     setSelectedKey(location.pathname);
@@ -37,11 +27,6 @@ export default function SidebarContent() {
     .filter((item) => {
       // Sembunyikan menu Masterdata jika roleId adalah 5
       if ([5].includes(roleId) && item.label === "Masterdata") {
-        return false;
-      }
-
-      // Sembunyikan menu Disposisi jika jabatan adalah Dekan
-      if (isDekan && item.label === "Disposisi") {
         return false;
       }
 

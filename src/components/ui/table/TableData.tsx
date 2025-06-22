@@ -1,14 +1,17 @@
 import { Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import DetailUser from "../DetailUser";
+import DetailUser from "../modals/DetailUser";
 import { useState } from "react";
 import LetterDetailsViewOnly, { LetterDetails } from "../modals/LetterDetailsViewOnly";
+import LetterRequestToDelete, { LetterDetailsToDelete } from "../modals/LetterRequestToDelete";
+import { NotifyProps } from "../../../hooks/useNotify";
 
 type TableDataProps<T> = {
   dataSource: T[];
   columns: ColumnsType<T>;
   showModalOnRowClick?: boolean;
-  type?: "userDataDetails" | "suratDataDetails";
+  type?: "userDataDetails" | "suratDataDetails" | "requestApprovalDetails";
+  notifyFunction?: (notification: NotifyProps) => void;
 };
 
 export default function TableData<T extends object>({
@@ -16,10 +19,12 @@ export default function TableData<T extends object>({
   columns,
   showModalOnRowClick = false,
   type,
+  notifyFunction,
 }: TableDataProps<T>) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<T | null>(null);
   const [letterData, setLetterData] = useState<T | null>(null);
+  const [requestApprovalData, setRequestApprovalData] = useState<T | null>(null);
 
   const handleRowClick = (record: T) => {
     if (!showModalOnRowClick) return;
@@ -29,6 +34,9 @@ export default function TableData<T extends object>({
       setIsModalOpen(true);
     } else if (type === "suratDataDetails") {
       setLetterData(record as T);
+      setIsModalOpen(true);
+    } else if (type === "requestApprovalDetails") {
+      setRequestApprovalData(record as T);
       setIsModalOpen(true);
     }
   };
@@ -69,6 +77,16 @@ export default function TableData<T extends object>({
           letterDetails={letterData as LetterDetails}
           visible={isModalOpen}
           onClose={() => setLetterData(null)}
+        />
+      )}
+
+      {/* Detail Request Approval Modal */}
+      {requestApprovalData && (
+        <LetterRequestToDelete
+          letterDetailsToDelete={requestApprovalData as LetterDetailsToDelete}
+          visible={isModalOpen}
+          onClose={() => setRequestApprovalData(null)}
+          notifyFunction={notifyFunction}
         />
       )}
     </>

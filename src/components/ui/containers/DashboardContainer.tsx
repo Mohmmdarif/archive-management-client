@@ -53,9 +53,11 @@ export default function DashboardContainer() {
     countDataSuratMasuk,
     countDataSuratKeluar,
     countDataDisposisi,
+    countDataAjuanPenghapusan,
     fetchCountSuratKeluar,
     fetchCountSuratMasuk,
     fetchCountDisposisi,
+    fetchCountAjuanPenghapusan,
     fetchLetterData,
   } = useDashboardStore();
   const userId = getUserId();
@@ -86,6 +88,7 @@ export default function DashboardContainer() {
     fetchUserManagementDataById();
     fetchCountSuratMasuk();
     fetchCountSuratKeluar();
+    fetchCountAjuanPenghapusan();
     fetchLetterData();
     fetchClassifierData();
   }, [
@@ -93,6 +96,7 @@ export default function DashboardContainer() {
     fetchUserManagementDataById,
     fetchCountSuratMasuk,
     fetchCountSuratKeluar,
+    fetchCountAjuanPenghapusan,
     fetchLetterData,
     fetchClassifierData,
   ]);
@@ -118,7 +122,7 @@ export default function DashboardContainer() {
     },
     {
       title: "Ajuan Penghapusan",
-      count: 0,
+      count: countDataAjuanPenghapusan,
       icon: <TbCircleDashedLetterD size={40} />,
       rolesAllowed: [1],
     }

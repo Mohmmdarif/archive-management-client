@@ -26,12 +26,14 @@ interface DashboardStore {
   countDataSuratMasuk: number;
   countDataSuratKeluar: number;
   countDataDisposisi: number;
+  countDataAjuanPenghapusan: number;
   letterData: LetterDetails[];
   isLoading: boolean;
   error: string | null;
   fetchCountSuratMasuk: () => Promise<void>;
   fetchCountSuratKeluar: () => Promise<void>;
   fetchCountDisposisi: (idUser: string) => Promise<void>;
+  fetchCountAjuanPenghapusan: () => Promise<void>;
   fetchLetterData: () => Promise<void>;
 }
 
@@ -41,6 +43,7 @@ const useDashboardStore = create<DashboardStore>((set) => ({
   countDataSuratMasuk: 0,
   countDataSuratKeluar: 0,
   countDataDisposisi: 0,
+  countDataAjuanPenghapusan: 0,
   letterData: [],
   isLoading: false,
   error: null,
@@ -108,6 +111,31 @@ const useDashboardStore = create<DashboardStore>((set) => ({
       );
       set({
         countDataDisposisi: response.data.data,
+        isLoading: false,
+      });
+    } catch (error) {
+      set({ error: getErrorMessage(error), isLoading: false });
+      throw new Error(getErrorMessage(error));
+    }
+  },
+  fetchCountAjuanPenghapusan: async () => {
+    set({
+      isLoading: true,
+      error: null,
+    });
+
+    try {
+      const response = await axiosInstance.get(
+        "/dashboard/ajuan-penghapusan/count",
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
+      );
+      set({
+        countDataAjuanPenghapusan: response.data.data,
         isLoading: false,
       });
     } catch (error) {

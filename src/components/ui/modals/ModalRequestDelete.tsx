@@ -1,4 +1,3 @@
-import React from 'react'
 import { Form, Input, Modal } from 'antd'
 import { FormInstance } from 'antd/es/form/Form';
 

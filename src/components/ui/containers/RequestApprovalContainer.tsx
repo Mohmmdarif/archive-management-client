@@ -1,16 +1,19 @@
 import React, { useEffect, useMemo } from 'react'
-import useLetterStore from '../../../store/api/useLetterStore'
-import { ColumnsType } from 'antd/es/table';
-import TableData from '../table/TableData';
 import dayjs from 'dayjs';
-import useClassifierStore from '../../../store/api/useClassifierStore';
 import { Badge, Button } from 'antd';
-import { getColorFromNumber } from '../../../libs/utils/randomProfile';
+import { ColumnsType } from 'antd/es/table';
+
+import useLetterStore from '../../../store/api/useLetterStore'
+import useClassifierStore from '../../../store/api/useClassifierStore';
 import useCriteriaStore from '../../../store/api/useCriteriaStore';
-import { IoEyeOutline } from 'react-icons/io5';
-import SubHeader from '../headers/SubHeader';
 import useNotify from '../../../hooks/useNotify';
 import useAuthStore from '../../../store/api/useAuthStore';
+
+import TableData from '../table/TableData';
+import SubHeader from '../headers/SubHeader';
+
+import { getColorFromNumber } from '../../../libs/utils/randomProfile';
+import { IoEyeOutline } from 'react-icons/io5';
 
 interface LetterDetails {
   id: string;
@@ -350,17 +353,17 @@ export default function RequestApprovalContainer() {
     },
     {
       title: "No Surat",
-      dataIndex: ["surat", "no_surat"],
+      dataIndex: ["no_surat"],
     },
     {
       title: "Perihal",
-      dataIndex: ["surat", "perihal_surat"],
+      dataIndex: ["perihal_surat"],
       width: 400,
       render: (text) => <span className="text-ellipsis line-clamp-2">{text}</span>,
     },
     {
       title: "Kriteria Surat",
-      dataIndex: ["surat", "id_kriteria_surat"],
+      dataIndex: ["kriteria_surat"],
       width: 150,
       filterSearch: true,
       filters: criteriaData

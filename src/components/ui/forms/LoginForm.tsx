@@ -13,7 +13,6 @@ export default function LoginForm() {
   const [form] = Form.useForm<LoginFormType>();
   const { notify, contextHolder } = useNotify();
   const { login, isLoading, error } = useAuthStore();
-  // const token = useAuthStore((state) => state.token);
 
   useEffect(() => {
     if (error) {

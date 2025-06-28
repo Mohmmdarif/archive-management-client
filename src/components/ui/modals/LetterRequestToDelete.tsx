@@ -73,7 +73,7 @@ export default function LetterRequestToDelete({
   const { categoryData } = useCategoryStore();
   const { userManagementData, fetchUserManagementData } =
     useUserManagementStore();
-  const { fetchSuratData, rejectDeleteRequest, approveDeleteRequest } =
+  const { fetchSuratData, rejectDeleteRequest, approveDeleteRequest, deleteCloudinaryFile } =
     useLetterStore();
 
   useEffect(() => {
@@ -87,7 +87,7 @@ export default function LetterRequestToDelete({
     (user) => user.id === letterDetailsToDelete.id_user_pengaju_penghapusan
   );
 
-  const handleApproveToDelete = async (id: string, e: React.MouseEvent) => {
+  const handleApproveToDelete = async (id: string, filename: string, e: React.MouseEvent) => {
     e.stopPropagation();
 
     Modal.confirm({
@@ -97,7 +97,8 @@ export default function LetterRequestToDelete({
       cancelText: "Cancel",
       onOk: async () => {
         try {
-          await approveDeleteRequest(id);
+          await approveDeleteRequest(id)
+          deleteCloudinaryFile(filename);
           await fetchSuratData();
           onClose();
 
@@ -157,7 +158,7 @@ export default function LetterRequestToDelete({
         <>
           <Button
             key="reject"
-            onClick={(e) => handleRejectToDelete(letterDetailsToDelete.id, e)}
+            onClick={(e) => handleRejectToDelete(letterDetailsToDelete?.id, e)}
             danger
           >
             Reject
@@ -167,7 +168,7 @@ export default function LetterRequestToDelete({
             type="primary"
             color="green"
             variant="solid"
-            onClick={(e) => handleApproveToDelete(letterDetailsToDelete.id, e)}
+            onClick={(e) => handleApproveToDelete(letterDetailsToDelete?.id, letterDetailsToDelete?.filename, e)}
           >
             Approve
           </Button>
@@ -176,7 +177,7 @@ export default function LetterRequestToDelete({
       width={900}
     >
       <Row gutter={16} className="my-4">
-        {letterDetailsToDelete.id_type_surat === 1 ? (
+        {letterDetailsToDelete?.id_type_surat === 1 ? (
           <Col span={12}>
             <Descriptions
               title="Informasi Umum"
@@ -187,15 +188,15 @@ export default function LetterRequestToDelete({
             >
               <Descriptions.Item label="No. Agenda">
                 <span>
-                  {letterDetailsToDelete?.Surat_Masuk?.[0].no_agenda || "-"}
+                  {letterDetailsToDelete?.Surat_Masuk?.[0]?.no_agenda || "-"}
                 </span>
               </Descriptions.Item>
 
               <Descriptions.Item label="Tgl. Diterima">
                 <span>
-                  {letterDetailsToDelete.Surat_Masuk?.[0].tanggal_terima
+                  {letterDetailsToDelete?.Surat_Masuk?.[0]?.tanggal_terima
                     ? dayjs(
-                      letterDetailsToDelete.Surat_Masuk?.[0].tanggal_terima
+                      letterDetailsToDelete?.Surat_Masuk?.[0].tanggal_terima
                     ).format("DD MMMM YYYY")
                     : "-"}
                 </span>
@@ -203,9 +204,9 @@ export default function LetterRequestToDelete({
 
               <Descriptions.Item label="Lampiran">
                 <span>
-                  {letterDetailsToDelete.Surat_Masuk?.[0].jumlah_lampiran === 0
+                  {letterDetailsToDelete?.Surat_Masuk?.[0]?.jumlah_lampiran === 0
                     ? "Tidak ada"
-                    : letterDetailsToDelete.Surat_Masuk?.[0].jumlah_lampiran}
+                    : letterDetailsToDelete?.Surat_Masuk?.[0]?.jumlah_lampiran}
                 </span>
               </Descriptions.Item>
             </Descriptions>
@@ -222,8 +223,8 @@ export default function LetterRequestToDelete({
           >
             <Descriptions.Item label="Tgl. Diarsipkan">
               <span>
-                {letterDetailsToDelete.created_at
-                  ? dayjs(letterDetailsToDelete.created_at).format(
+                {letterDetailsToDelete?.created_at
+                  ? dayjs(letterDetailsToDelete?.created_at).format(
                     "DD MMMM YYYY"
                   )
                   : "-"}
@@ -231,7 +232,7 @@ export default function LetterRequestToDelete({
             </Descriptions.Item>
 
             <Descriptions.Item label="Pengarsip">
-              <span>{letterDetailsToDelete.pengarsip}</span>
+              <span>{letterDetailsToDelete?.pengarsip}</span>
             </Descriptions.Item>
           </Descriptions>
         </Col>
@@ -245,13 +246,13 @@ export default function LetterRequestToDelete({
             labelStyle={{ width: "30%", fontWeight: "revert" }}
           >
             <Descriptions.Item label="No. Surat">
-              <span>{letterDetailsToDelete.no_surat}</span>
+              <span>{letterDetailsToDelete?.no_surat}</span>
             </Descriptions.Item>
 
             <Descriptions.Item label="Tgl. Surat">
               <span>
-                {letterDetailsToDelete.tanggal_surat
-                  ? dayjs(letterDetailsToDelete.tanggal_surat).format(
+                {letterDetailsToDelete?.tanggal_surat
+                  ? dayjs(letterDetailsToDelete?.tanggal_surat).format(
                     "DD MMMM YYYY"
                   )
                   : "-"}
@@ -269,14 +270,14 @@ export default function LetterRequestToDelete({
             </Descriptions.Item>
 
             <Descriptions.Item label="Perihal Surat">
-              <span>{letterDetailsToDelete.perihal_surat}</span>
+              <span>{letterDetailsToDelete?.perihal_surat}</span>
             </Descriptions.Item>
 
             <Descriptions.Item label="Jenis Surat">
               <span>
                 {
                   typeData.find(
-                    (items) => items.id === letterDetailsToDelete.id_jenis_surat
+                    (items) => items.id === letterDetailsToDelete?.id_jenis_surat
                   )?.nama_jenis
                 }
               </span>
@@ -287,34 +288,34 @@ export default function LetterRequestToDelete({
                 {
                   criteriaData.find(
                     (items) =>
-                      items.id === letterDetailsToDelete.id_kriteria_surat
+                      items.id === letterDetailsToDelete?.id_kriteria_surat
                   )?.nama_kriteria
                 }
               </span>
             </Descriptions.Item>
-            {letterDetailsToDelete.id_type_surat === 1 ? (
+            {letterDetailsToDelete?.id_type_surat === 1 ? (
               <Descriptions.Item label="Kategori Surat">
                 {
                   categoryData.find(
                     (items) =>
                       items.id ===
-                      letterDetailsToDelete.Surat_Masuk?.[0].id_kategori_surat
+                      letterDetailsToDelete?.Surat_Masuk?.[0].id_kategori_surat
                   )?.nama_kategori
                 }
               </Descriptions.Item>
             ) : null}
             <Descriptions.Item label="Pengirim">
-              <span>{letterDetailsToDelete.pengirim_surat}</span>
+              <span>{letterDetailsToDelete?.pengirim_surat}</span>
             </Descriptions.Item>
             <Descriptions.Item label="Penerima">
-              <span>{letterDetailsToDelete.penerima_surat}</span>
+              <span>{letterDetailsToDelete?.penerima_surat}</span>
             </Descriptions.Item>
-            {letterDetailsToDelete.id_type_surat === 2 ? (
+            {letterDetailsToDelete?.id_type_surat === 2 ? (
               <Descriptions.Item label="Tanggal Kirim Surat">
                 <span>
-                  {letterDetailsToDelete.surat_keluar?.[0].tanggal_kirim
+                  {letterDetailsToDelete?.surat_keluar?.[0].tanggal_kirim
                     ? dayjs(
-                      letterDetailsToDelete.surat_keluar?.[0].tanggal_kirim
+                      letterDetailsToDelete?.surat_keluar?.[0].tanggal_kirim
                     ).format("DD MMMM YYYY")
                     : "-"}
                 </span>
@@ -327,8 +328,8 @@ export default function LetterRequestToDelete({
                   type="primary"
                   size="small"
                   onClick={() =>
-                    encodeURI(letterDetailsToDelete.path_file) &&
-                    window.open(letterDetailsToDelete.path_file, "_blank")
+                    encodeURI(letterDetailsToDelete?.path_file) &&
+                    window.open(letterDetailsToDelete?.path_file, "_blank")
                   }
                 >
                   <IoEyeOutline />
@@ -353,7 +354,7 @@ export default function LetterRequestToDelete({
           >
             <Descriptions.Item label="Pengaju">
               <span>
-                {letterDetailsToDelete.id_user_pengaju_penghapusan
+                {letterDetailsToDelete?.id_user_pengaju_penghapusan
                   ? userRequestToDelete?.nama_lengkap
                   : "-"}
               </span>
@@ -373,7 +374,7 @@ export default function LetterRequestToDelete({
   // Handle file download
   async function handleDownload() {
     try {
-      const response = await fetch(letterDetailsToDelete.path_file, {
+      const response = await fetch(letterDetailsToDelete?.path_file, {
         method: "GET",
       });
 
@@ -385,7 +386,7 @@ export default function LetterRequestToDelete({
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = letterDetailsToDelete.filename || "file.pdf";
+      a.download = letterDetailsToDelete?.filename || "file.pdf";
       document.body.appendChild(a);
       a.click();
       a.remove();

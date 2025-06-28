@@ -7,8 +7,6 @@ import {
   Badge,
   Button,
   Flex,
-  Form,
-  Input,
   Modal,
   Space,
   Spin,
@@ -34,13 +32,13 @@ import SubHeader from "../headers/SubHeader";
 import Search from "../search/Search";
 import ModalDetailLetter from "../modals/ModalDetailLetter";
 import ModalEditDetailLetter from "../modals/ModalEditDetailLetter";
+import ModalRequestDelete from "../modals/ModalRequestDelete";
 
 // Icons
 import { TbTrash } from "react-icons/tb";
 import { BiEdit, BiPlus } from "react-icons/bi";
 import { IoArrowRedoOutline, IoEyeOutline } from "react-icons/io5";
 import { useForm } from "antd/es/form/Form";
-import ModalRequestDelete from "../modals/ModalRequestDelete";
 
 interface SuratMasuk {
   id: string;
@@ -170,8 +168,8 @@ export default function ArchiveContainer() {
         cancelText: "Cancel",
         onOk: async () => {
           try {
-            deleteCloudinaryFile(filename);
             await deleteData(id);
+            deleteCloudinaryFile(filename);
             await fetchSuratData();
 
             // Show notification
